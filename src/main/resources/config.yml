@@ -10,7 +10,7 @@ prefix: '&8[&3&lSTAFF&b&lCORE&8] &7'
 
 language:
   # Default language when a player has not chosen one yet
-  default: es
+  default: en
   # If false, missing keys will NOT fall back to default language.
   # This avoids mixed-language output and makes missing keys obvious.
   allow-default-fallback: false
