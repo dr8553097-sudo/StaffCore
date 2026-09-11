@@ -1,0 +1,584 @@
+# ==========================================================
+# StaffCore - Configuracion principal
+# Proyecto orientado a hispanohablantes.
+# Primera version educativa/profesional para moderacion.
+# Credito principal del plugin: Dafealru
+# ==========================================================
+
+# Prefix used in most plugin messages ({prefix})
+prefix: '&8[&3&lSTAFF&b&lCORE&8] &7'
+
+language:
+  # Default language when a player has not chosen one yet
+  default: es
+  # If false, missing keys will NOT fall back to default language.
+  # This avoids mixed-language output and makes missing keys obvious.
+  allow-default-fallback: false
+  # If true, /stafflang also updates language.default in this file
+  # so reloads/restarts keep the new global fallback language.
+  stafflang-updates-default: true
+  # Languages available in /plugins/StaffCore/lang/*.yml
+  available:
+    - en
+    - es
+    - fr
+    - pt
+
+update-checker:
+  # If enabled, StaffCore checks Spigot for newer plugin versions.
+  enabled: true
+  # Spigot resource ID from your resource URL.
+  spigot-resource-id: 134819
+  # Endpoint template. Keep {resource} placeholder.
+  api-url: 'https://api.spigotmc.org/legacy/update.php?resource={resource}'
+  # Link shown to staff when update is available.
+  resource-page-url: 'https://www.spigotmc.org/resources/staffcore-advanced-staff-moderation-suite.134819/'
+  # Check once when plugin starts.
+  check-on-startup: true
+  # Repeat check every X minutes.
+  check-interval-minutes: 180
+  # HTTP timeouts for update check request.
+  connect-timeout-ms: 4000
+  read-timeout-ms: 4000
+  # Notify staff in-game only once per session/version.
+  notify-on-join: true
+  # Notify OPs automatically.
+  notify-op: true
+  # Extra permission for update alerts.
+  notify-permission: staffcore.update
+  # Console log behavior.
+  console-log-up-to-date: false
+  console-log-failures: true
+
+# Welcome text/title was moved to ui.yml -> welcome.*
+# (kept compatible: if ui.yml key is missing, plugin falls back to old config path)
+
+staff-mode:
+  # Enable vanish automatically when entering staff mode
+  auto-vanish: true
+  # Disable vanish automatically when leaving staff mode
+  disable-vanish-on-exit: true
+  # GameMode applied when entering staff mode (recommended: ADVENTURE or SURVIVAL)
+  # Avoid CREATIVE on production unless you explicitly trust all staff.
+  game-mode-on-enable: ADVENTURE
+  # Block PvP when a player is in staff mode (prevents abuse during moderation)
+  prevent-combat: true
+  # If true, players in staff mode cannot receive any damage (fall, fire, lava, drowning, etc.).
+  # OP attackers can still damage them for emergency control.
+  prevent-all-damage: true
+  # Prevent staff mode from breaking/placing blocks
+  prevent-world-modification: true
+  # Prevent block interaction (buttons, doors, chests, pressure plates) while in staff mode
+  prevent-world-interactions: true
+  # If true, staff in staff mode cannot pick up dropped items from the floor
+  prevent-item-pickup: true
+  # Cooldown for warning message when blocked by staff-mode protections
+  interaction-notice-cooldown-ms: 1200
+  # Default profile speeds used in staff mode when the player has no custom profile saved yet.
+  # Scale 0-10 (10 = maximum Bukkit speed 1.0)
+  default-walk-speed-level: 2.0
+  default-fly-speed-level: 1.0
+
+features:
+  # Master toggles for modules that may overlap with other plugins.
+  # Keep true by default; set false to delegate to another plugin.
+  punishments: true
+  reports: true
+  freeze: true
+  vanish: true
+  staff-chat: true
+  xray-alerts: true
+
+security:
+  # Hide moderation/staff commands (and staffcore:* namespaced variants) from regular players in tab-complete
+  hide-staff-commands: true
+
+storage:
+  # Persistence backend mode.
+  # Current production backend: yaml.
+  # sqlite/mysql are prepared as future options and currently fallback to yaml.
+  mode: yaml
+  sqlite:
+    file: 'staffcore.db'
+  mysql:
+    host: '127.0.0.1'
+    port: 3306
+    database: 'staffcore'
+    username: 'root'
+    password: 'change-me'
+    ssl: false
+    pool-size: 8
+  async-save:
+    # If true, reports/punishments/staff-logs/notes/first-joins
+    # are grouped and flushed in background to reduce disk writes.
+    enabled: true
+    # Flush interval for queued saves (seconds).
+    flush-interval-seconds: 5
+  crash-safe:
+    # If true, YAML writes use temp file + atomic replace (or fallback replace)
+    # to avoid broken half-written files.
+    enabled: true
+    # If true, forces disk sync after write/move for stronger durability.
+    # Slightly increases IO cost on slow disks.
+    force-file-sync: false
+    # If true, keep a .bak copy before replacing target files.
+    keep-backup: true
+    # On startup/reload, if target file is missing but .tmp exists,
+    # StaffCore recovers the temp snapshot automatically.
+    recover-temp-on-load: true
+
+vanish:
+  # Normal mode (recommended): false
+  # - false: staff with permission staffcore.vanish.see can still see vanished players.
+  # - true: vanished players are hidden from everyone (including other staff).
+  strict-hide-for-all: false
+  # If true, vanished staff cannot collide with players/entities
+  disable-collision: true
+  # If true, vanished staff cannot pick up dropped items
+  disable-item-pickup: true
+  # Radius around vanished player to clear hostile mob targets
+  clear-mob-target-radius: 48.0
+  # If true, vanished players cannot deal or receive PvP damage
+  block-combat-while-vanish: true
+  # Prevent breaking/placing blocks while vanished (also applies when using /v or /vanish outside /staff)
+  prevent-world-modification-while-vanish: true
+  # Prevent interacting with buttons/doors/chests/pressure plates while vanished (without staff tools)
+  prevent-world-interactions-while-vanish: true
+  # Cooldown for the vanish world-blocked warning message
+  interaction-notice-cooldown-ms: 1200
+
+staff-hud:
+  # ActionBar HUD shown above hotbar for staff/vanish users
+  enabled: true
+  # Update frequency in ticks (20 ticks = 1 second).
+  # Lower value = faster refresh of vanish status icon (✓/✗).
+  update-interval-ticks: 8
+  # Show while player is in staff mode
+  show-when-staff-mode: true
+  # Show while player is vanished (even if not in staff mode)
+  show-when-vanished: true
+  # HUD text style moved to ui.yml -> staff-hud.*
+  # Placeholders: {tps} {ping} {fps} {vanish} {vanish_text} {vanish_icon}
+  # Note: ActionBar vertical position is client-side and cannot be moved by plugin.
+
+staff-chat:
+  # Format text moved to ui.yml -> staff-chat.format
+  # If true, staff/vanish users can also see private messages sent with /msg, /tell, /w, etc.
+  spy-private-messages-while-staff-mode: true
+
+chat-moderation:
+  # Global chat state (updated automatically with /chatmute).
+  chat-muted: false
+  # Permission that allows chatting while global chat is muted.
+  bypass-permission: staffcore.chatmute.bypass
+  # Cooldown for "chat muted" blocked notice to reduce visual spam.
+  blocked-notice-cooldown-ms: 900
+
+reports:
+  # Cooldown in seconds between /report uses
+  cooldown-seconds: 45
+  # Maximum text length for report reason
+  max-reason-length: 180
+  # If false, protected players cannot be reported
+  allow-protected-targets: false
+  # Minimum reason length when staff rejects a report in the review GUI
+  reject-min-reason-length: 4
+  # Timeout for "waiting reject reason in chat" flow
+  reject-prompt-timeout-seconds: 120
+  # Default message sent to reporter when accepted
+  default-accept-reason: 'Your report is now under staff review.'
+  # Default reason used when report is closed without custom reason
+  default-close-reason: 'Your report was handled by staff.'
+
+xray-alerts:
+  # Master toggle for X-Ray heuristic alert system
+  enabled: true
+  # Runtime switch persisted in xray-alerts.yml (can be toggled by /xrayalerts module)
+  runtime-enabled: true
+  # Permission to receive X-Ray alerts
+  notify-permission: staffcore.xray.alerts
+  # Permission that bypasses scan checks
+  bypass-permission: staffcore.xray.bypass
+  # Worlds to ignore (names, case-insensitive)
+  ignored-worlds: []
+  # Extra anti-false-positive: completely bypass checks in these worlds
+  whitelist-worlds: []
+  # Extra anti-false-positive: bypass checks in these biomes (example: DRIPSTONE_CAVES)
+  whitelist-biomes: []
+  # Extra anti-false-positive: bypass checks in configured mine regions.
+  # Format:
+  # whitelist-mines:
+  #   - id: 'staff-mine'
+  #     world: 'world'
+  #     pos1: '-120,5,-120'
+  #     pos2: '120,60,120'
+  whitelist-mines: []
+  # Warmup after player joins: no X-Ray checks during this period
+  warmup-seconds-after-join: 90
+  # Only track mining at or below this Y
+  monitor-y-max: 48
+  # "Deep" ore zone for additional confidence scoring
+  deep-y-level-max: 24
+  # Sliding analysis window
+  window-seconds: 180
+  # Minimum total broken blocks in current window before ratio alerts
+  minimum-total-breaks: 80
+  # Minimum valuable ores in current window before ratio alerts
+  minimum-valuable-ores: 6
+  # Valuable ore / total broken ratio threshold (0.10 = 10%)
+  minimum-ore-ratio: 0.10
+  # Deep valuable ore / valuable ore ratio threshold
+  minimum-deep-ore-ratio: 0.55
+  # Burst detector for quick suspicious spikes
+  burst-window-seconds: 30
+  burst-valuable-ores: 5
+  # Cooldown between alerts for the same player
+  alert-cooldown-seconds: 45
+  # Escalation message after N alerts in same window
+  escalation-after-alerts: 3
+  # Optional staff sound alert when an X-Ray alert is triggered
+  # Set to "" to disable sound.
+  alert-sound: BLOCK_NOTE_BLOCK_PLING
+  alert-volume: 1.1
+  alert-pitch: 1.0
+  # Valuable ores tracked by the heuristic
+  track-ores:
+    - DIAMOND_ORE
+    - DEEPSLATE_DIAMOND_ORE
+    - ANCIENT_DEBRIS
+    - EMERALD_ORE
+    - DEEPSLATE_EMERALD_ORE
+    - GOLD_ORE
+    - DEEPSLATE_GOLD_ORE
+    - REDSTONE_ORE
+    - DEEPSLATE_REDSTONE_ORE
+
+helpop:
+  # Enable/disable /helpop module.
+  enabled: true
+  # Cooldown in seconds between each request per player.
+  cooldown-seconds: 60
+  # Max length of helpop message to prevent spam walls.
+  max-message-length: 220
+  # Visual wrap width for long helpop messages in template lines.
+  # Lower = more compact lines. Recommended range: 30-55
+  message-wrap-width: 44
+  # Max characters shown in compact template placeholder {message_compact}
+  template-compact-max-chars: 110
+  # Visual template/title text moved to ui.yml -> helpop.*
+  # Placeholders available: {player} {message} {message_raw} {message_wrapped} {time} {server}
+  # Sound/title alert for staff with permission staffcore.helpop.receive
+  alert-sound: BLOCK_NOTE_BLOCK_PLING
+  alert-volume: 1.4
+  alert-pitch: 1.05
+  alert-title-enabled: true
+  alert-title-fade-in: 5
+  alert-title-stay: 45
+  alert-title-fade-out: 12
+
+staff-logs:
+  # Auto-clean logs when plugin loads/reloads config.
+  auto-prune-on-reload: true
+  # Days of log history to keep.
+  # Set to 0 or negative to disable cleanup by age.
+  retention-days: 30
+  # Maximum amount of entries to keep in staff-logs.yml.
+  # Oldest entries are removed first.
+  # Set to 0 or negative to disable cleanup by size.
+  max-entries: 10000
+  # Print cleanup summary in console when entries are removed.
+  print-prune-summary: true
+
+freeze:
+  # Time window (in seconds) displayed in freeze warning template.
+  response-window-seconds: 8
+  # If true, sends a visual multiline freeze card in chat.
+  visual-chat-card-enabled: true
+  # If true, sends freeze status/countdown in ActionBar.
+  visual-actionbar-enabled: true
+  # Allowed commands while frozen
+  allowed-commands-while-frozen:
+    - /msg
+    - /msgto
+    - /m
+    - /message
+    - /etell
+    - /pm
+    - /dm
+    - /w
+    - /whisper
+    - /tell
+    - /t
+    - /r
+    - /reply
+    - /helpop
+  # Escape commands blocked even if someone accidentally adds them to "allowed"
+  blocked-commands-while-frozen:
+    - /spawn
+    - /home
+    - /sethome
+    - /warp
+    - /hub
+    - /lobby
+    - /rtp
+    - /tpa
+    - /tpaccept
+    - /back
+  # Prevent message spam while frozen movement is blocked
+  reminder-cooldown-ms: 1200
+  # Keep player frozen even after disconnect/reconnect
+  # Security mode currently enforces this behavior to prevent escape abuse.
+  keep-frozen-on-quit: true
+  # Private freeze chat bridge:
+  # - Frozen players typing in global chat are redirected to the assigned staff.
+  # - Staff auto-message the frozen player (no command) when they have exactly 1 active freeze session.
+  private-chat-enabled: true
+  private-chat-auto-route-staff: true
+  # If true, freeze assignment is preserved when assigned staff disconnects.
+  # This lets the chat link restore automatically if that staff member rejoins.
+  # Another staff can still take over at any time using /freeze claim <player>.
+  keep-assignment-when-staff-quits: true
+
+menu:
+  # Quick actions used by the staff GUI
+  quick-actions:
+    warn-reason: 'Suspicious activity detected by staff.'
+    mute-duration: '15m'
+    mute-reason: 'Inappropriate behavior. Contact staff for review.'
+
+  # Visual style of the staff GUI (easy to customize).
+  # Material names must be valid Bukkit/Paper materials.
+  style:
+    # Set to "custom" to use the values below directly.
+    # Or set a preset name from menu.templates.* (ex: modern-blue, obsidian-red, emerald-clean, aurora-ops)
+    template: aurora-ops
+    title-prefix: '&0[&3&lStaff&b&lCore&0] '
+    # If true, clickable GUI actions have glow enchant visual.
+    glow-actions: true
+    # If true, close button also glows.
+    glow-close: false
+    fillers:
+      main: GRAY_STAINED_GLASS_PANE
+      players: BLACK_STAINED_GLASS_PANE
+      reports: BLUE_STAINED_GLASS_PANE
+      frozen: LIGHT_BLUE_STAINED_GLASS_PANE
+      staff-online: CYAN_STAINED_GLASS_PANE
+      inspect: GRAY_STAINED_GLASS_PANE
+      history: BROWN_STAINED_GLASS_PANE
+      logs: GREEN_STAINED_GLASS_PANE
+    icons:
+      open-players: COMPASS
+      open-reports: BOOK
+      open-frozen: PACKED_ICE
+      open-staff: PLAYER_HEAD
+      open-logs: CLOCK
+      vanish-on: LIME_DYE
+      vanish-off: GRAY_DYE
+      close: BARRIER
+      back: ARROW
+      inspect-teleport: ENDER_PEARL
+      inspect-freeze: PACKED_ICE
+      inspect-open-inv: CHEST
+      inspect-open-ender: ENDER_CHEST
+      inspect-history: BOOK
+      inspect-warn: LIME_DYE
+      inspect-mute: RED_DYE
+      report-entry: PAPER
+      report-accept: LIME_CONCRETE
+      report-reject: RED_CONCRETE
+      report-teleport: ENDER_PEARL
+      history-punishment: PAPER
+      history-note: WRITABLE_BOOK
+      log-entry: PAPER
+
+  # Presets inspired by modern moderation GUIs.
+  templates:
+    aurora-ops:
+      title-prefix: '&0[&3&lStaff&b&lCore&0] '
+      glow-actions: true
+      glow-close: false
+      fillers:
+        main: LIGHT_BLUE_STAINED_GLASS_PANE
+        players: BLUE_STAINED_GLASS_PANE
+        reports: CYAN_STAINED_GLASS_PANE
+        frozen: LIGHT_BLUE_STAINED_GLASS_PANE
+        staff-online: BLUE_STAINED_GLASS_PANE
+        inspect: GRAY_STAINED_GLASS_PANE
+        history: CYAN_STAINED_GLASS_PANE
+        logs: BLUE_STAINED_GLASS_PANE
+      icons:
+        open-players: COMPASS
+        open-reports: WRITABLE_BOOK
+        open-frozen: BLUE_ICE
+        open-staff: PLAYER_HEAD
+        open-logs: CLOCK
+        vanish-on: LIME_DYE
+        vanish-off: GRAY_DYE
+        close: BARRIER
+        back: ARROW
+        inspect-teleport: ENDER_PEARL
+        inspect-freeze: BLUE_ICE
+        inspect-open-inv: CHEST
+        inspect-open-ender: ENDER_CHEST
+        inspect-history: BOOK
+        inspect-warn: YELLOW_DYE
+        inspect-mute: ORANGE_DYE
+        report-entry: PAPER
+        report-accept: LIME_CONCRETE
+        report-reject: RED_CONCRETE
+        report-teleport: ENDER_PEARL
+        history-punishment: PAPER
+        history-note: WRITABLE_BOOK
+        log-entry: PAPER
+    modern-blue:
+      title-prefix: '&0[&bStaff&3Core&0] '
+      fillers:
+        main: LIGHT_BLUE_STAINED_GLASS_PANE
+        players: BLACK_STAINED_GLASS_PANE
+        reports: BLUE_STAINED_GLASS_PANE
+        frozen: CYAN_STAINED_GLASS_PANE
+        staff-online: LIGHT_BLUE_STAINED_GLASS_PANE
+        inspect: GRAY_STAINED_GLASS_PANE
+        history: BLUE_STAINED_GLASS_PANE
+        logs: CYAN_STAINED_GLASS_PANE
+      icons:
+        open-players: COMPASS
+        open-reports: WRITABLE_BOOK
+        open-frozen: PACKED_ICE
+        open-staff: PLAYER_HEAD
+        open-logs: CLOCK
+        vanish-on: LIME_DYE
+        vanish-off: GRAY_DYE
+        close: BARRIER
+        back: ARROW
+        inspect-teleport: ENDER_PEARL
+        inspect-freeze: BLUE_ICE
+        inspect-open-inv: CHEST
+        inspect-open-ender: ENDER_CHEST
+        inspect-history: BOOK
+        inspect-warn: YELLOW_DYE
+        inspect-mute: ORANGE_DYE
+        report-entry: PAPER
+        report-accept: LIME_CONCRETE
+        report-reject: RED_CONCRETE
+        report-teleport: ENDER_PEARL
+        history-punishment: PAPER
+        history-note: WRITABLE_BOOK
+        log-entry: PAPER
+    obsidian-red:
+      title-prefix: '&0[&cStaff&4Ops&0] '
+      fillers:
+        main: BLACK_STAINED_GLASS_PANE
+        players: BLACK_STAINED_GLASS_PANE
+        reports: RED_STAINED_GLASS_PANE
+        frozen: GRAY_STAINED_GLASS_PANE
+        staff-online: RED_STAINED_GLASS_PANE
+        inspect: BLACK_STAINED_GLASS_PANE
+        history: RED_STAINED_GLASS_PANE
+        logs: BLACK_STAINED_GLASS_PANE
+      icons:
+        open-players: SPYGLASS
+        open-reports: BOOK
+        open-frozen: PACKED_ICE
+        open-staff: PLAYER_HEAD
+        open-logs: CLOCK
+        vanish-on: LIME_DYE
+        vanish-off: GRAY_DYE
+        close: BARRIER
+        back: ARROW
+        inspect-teleport: ENDER_PEARL
+        inspect-freeze: PACKED_ICE
+        inspect-open-inv: CHEST
+        inspect-open-ender: ENDER_CHEST
+        inspect-history: WRITABLE_BOOK
+        inspect-warn: RED_DYE
+        inspect-mute: BLACK_DYE
+        report-entry: PAPER
+        report-accept: LIME_CONCRETE
+        report-reject: RED_CONCRETE
+        report-teleport: ENDER_PEARL
+        history-punishment: PAPER
+        history-note: WRITABLE_BOOK
+        log-entry: PAPER
+    emerald-clean:
+      title-prefix: '&0[&aStaff&2Core&0] '
+      fillers:
+        main: GREEN_STAINED_GLASS_PANE
+        players: LIME_STAINED_GLASS_PANE
+        reports: YELLOW_STAINED_GLASS_PANE
+        frozen: CYAN_STAINED_GLASS_PANE
+        staff-online: GREEN_STAINED_GLASS_PANE
+        inspect: GRAY_STAINED_GLASS_PANE
+        history: GREEN_STAINED_GLASS_PANE
+        logs: LIME_STAINED_GLASS_PANE
+      icons:
+        open-players: COMPASS
+        open-reports: BOOK
+        open-frozen: PACKED_ICE
+        open-staff: PLAYER_HEAD
+        open-logs: CLOCK
+        vanish-on: LIME_DYE
+        vanish-off: GRAY_DYE
+        close: BARRIER
+        back: ARROW
+        inspect-teleport: ENDER_PEARL
+        inspect-freeze: PACKED_ICE
+        inspect-open-inv: CHEST
+        inspect-open-ender: ENDER_CHEST
+        inspect-history: BOOK
+        inspect-warn: LIME_DYE
+        inspect-mute: RED_DYE
+        report-entry: PAPER
+        report-accept: LIME_CONCRETE
+        report-reject: RED_CONCRETE
+        report-teleport: ENDER_PEARL
+        history-punishment: PAPER
+        history-note: WRITABLE_BOOK
+        log-entry: PAPER
+
+staff-tools:
+  # Anti-double-click / anti-duplicate packet cooldown for tool actions (ms)
+  action-cooldown-ms: 300
+  # Tool names/lore are language-specific in lang/*.yml (messages.staff-tool-*)
+  # Behavior values stay here.
+  teleporter:
+    # Also used for line-of-sight target search
+    max-distance: 120
+
+moderation:
+  # Hierarchy safeguards for punishments/reports
+  protect-enabled: true
+  protect-permission: staffcore.protect
+  override-permission: staffcore.override
+  # Additional override to allow moderating other staff members.
+  # Without this, staff cannot freeze/punish each other.
+  staff-target-override-permission: staffcore.stafftarget.override
+
+  # Links shown in ban/kick screen templates (lang files can use {appeal} and {store}).
+  links:
+    appeal-url: 'https://tu-servidor.com/apelaciones'
+    store-url: 'https://tu-servidor.com/tienda'
+
+  # Global limits for moderation text
+  min-reason-length: 4
+  max-note-length: 220
+
+  # ==========================================================
+  # SANCTION REASON RULES
+  # ----------------------------------------------------------
+  # Since this version, sanctions store a CLEAN reason only
+  # (example: "Hacks", "Spam", "Insults") to avoid giant duplicated texts.
+  #
+  # IMPORTANT:
+  # Final visual templates for players/staff are configured in lang/*.yml.
+  # These keys remain for compatibility and should usually stay as "{reason}".
+  # ==========================================================
+  reason-templates:
+    warn: '{reason}'
+    mute: '{reason}'
+    kick: '{reason}'
+    ban: '{reason}'
+    tempban: '{reason}'
+
+# Language files now own all visible chat/title text.
+# Edit /plugins/StaffCore/lang/*.yml to customize messages.

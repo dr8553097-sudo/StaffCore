@@ -1,0 +1,72 @@
+# ==========================================================
+# StaffCore - UI / Text templates
+# ----------------------------------------------------------
+# This file stores visual and textual presentation keys.
+# Gameplay behavior, limits, cooldowns and toggles stay in config.yml.
+# ==========================================================
+
+welcome:
+  # First join onboarding text/sound/title
+  first-join-title: '&bBienvenido'
+  first-join-subtitle: '&7Disfruta tu experiencia en el servidor'
+  first-join-lines:
+    - '&aBienvenido, {player}.'
+    - '&7Esperamos que disfrutes y juegues limpio.'
+
+staff-hud:
+  # Placeholders: {tps} {ping} {fps} {vanish} {vanish_text} {vanish_icon}
+  format: '&8[&bTPS&8] &f{tps}  &8[&aPING&8] &f{ping}ms  &8[&dVANISH&8] {vanish_icon}'
+  vanish-on-text: '&aACTIVO'
+  vanish-off-text: '&cOFF'
+  vanish-on-icon: '&a✓'
+  vanish-off-icon: '&c✗'
+
+staff-chat:
+  # Format for @message staff chat
+  # Placeholders: {player} {message}
+  format: '&8[&3&lSTAFF-CHAT&8] &b{player}&8: &f{message}'
+
+helpop:
+  # Visual template sent to staff and console.
+  # Placeholders: {player} {message} {message_raw} {message_wrapped} {message_compact} {time} {server}
+  template-lines:
+    - '&8&m========================================'
+    - '&c&l[HELPOP] NUEVA SOLICITUD'
+    - '&7Jugador: &f{player} &8| &7Hora: &f{time}'
+    - '&7Servidor: &f{server}'
+    - '&7Mensaje:'
+    - '&f{message_compact}'
+    - '&8&m========================================'
+  # Title text for online staff alert
+  alert-title: '&c&l[HELPOP]'
+  alert-subtitle: '&f{player} &7necesita ayuda del staff'
+
+staff-tools:
+  # Names/lore of staff mode toolbar items
+  teleporter:
+    name: '&bTeleporter'
+    lore: '&7Click derecho a un jugador para teletransportarte.'
+  freeze:
+    name: '&bFreeze'
+    lore: '&7Click derecho a un jugador para congelarlo.'
+  inspector:
+    name: '&bInspector'
+    lore: '&7Click derecho para revisar su inventario.'
+  spectator:
+    name: '&bModo Espectador'
+    lore: '&7Click derecho para alternar modo espectador.'
+  panel:
+    name: '&bPanel Staff'
+    lore: '&7Abre el panel central de moderacion.'
+  night-vision:
+    name: '&bVision Nocturna'
+    lore: '&7Click derecho para alternar vision nocturna.'
+  vanish:
+    lore: '&7Toggle your visibility.'
+  vanish-on:
+    name: '&aVanish: ACTIVO'
+  vanish-off:
+    name: '&cVanish: OFF'
+  exit:
+    name: '&cSalir de Staff'
+    lore: '&7Regresa a tu estado normal de forma segura.'
