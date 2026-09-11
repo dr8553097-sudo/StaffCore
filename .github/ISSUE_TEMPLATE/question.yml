@@ -1,0 +1,43 @@
+name: "❓ Pregunta / Soporte"
+description: "Tienes una duda sobre cómo usar StaffCore"
+title: "[PREGUNTA] "
+labels: ["pregunta", "soporte"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ❓ ¿Tienes una duda?
+        Cuéntanos tu pregunta con el mayor detalle posible.
+
+  - type: input
+    id: staffcore-version
+    attributes:
+      label: "📦 Versión de StaffCore"
+      placeholder: "Ej: 1.3.0"
+    validations:
+      required: true
+
+  - type: input
+    id: server-version
+    attributes:
+      label: "🖥️ Versión del servidor"
+      placeholder: "Ej: Paper 1.21.1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: "📝 Tu pregunta"
+      description: "Describe tu duda con detalle"
+      placeholder: "¿Cómo puedo hacer que...?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: "🔍 ¿Qué intentaste?"
+      description: "¿Leíste la documentación? ¿Qué probaste?"
+    validations:
+      required: false
