@@ -1,0 +1,63 @@
+name: "✨ Solicitud de Feature"
+description: "Propón una nueva función o mejora para StaffCore"
+title: "[FEATURE] "
+labels: ["enhancement", "propuesta"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ ¡Gracias por tu sugerencia!
+        Las ideas de la comunidad son lo que hace crecer StaffCore. Describe tu idea con detalle.
+
+  - type: checkboxes
+    id: pre-checks
+    attributes:
+      label: "✅ Antes de sugerir"
+      options:
+        - label: "Busqué en los issues existentes y no encontré una sugerencia igual"
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "❓ ¿Qué problema resuelve esto?"
+      description: "Describe la situación que te llevó a pedir esta función"
+      placeholder: "Me frustra cuando tengo que... / No existe una forma de..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "💡 Solución propuesta"
+      description: "Describe cómo te imaginas que funcionaría"
+      placeholder: "Sería genial que al hacer X, ocurra Y..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "🔄 Alternativas consideradas"
+      description: "¿Probaste alguna otra solución o workaround?"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "📊 Prioridad que le das"
+      options:
+        - "Baja — sería útil pero no urgente"
+        - "Media — mejoraría bastante la experiencia"
+        - "Alta — es una función esencial que falta"
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: "➕ Contexto adicional"
+      description: "Ejemplos de otros plugins que hacen algo similar, capturas, etc."
+    validations:
+      required: false
