@@ -35,10 +35,10 @@ public final class LangManager {
     }
 
     public void reload() {
-        this.defaultLanguage = plugin.getConfig().getString("language.default", "en").toLowerCase(Locale.ROOT);
+        this.defaultLanguage = plugin.getConfig().getString("language.default", "es").toLowerCase(Locale.ROOT);
         this.available = plugin.getConfig().getStringList("language.available");
         if (available.isEmpty()) {
-            available = List.of("en", "es", "fr");
+            available = List.of("es", "en", "fr");
         }
 
         if (!langFolder.exists() && !langFolder.mkdirs()) {
