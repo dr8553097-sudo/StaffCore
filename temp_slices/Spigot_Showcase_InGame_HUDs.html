@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 850px;
+  height: 600px;
+  background: #0b0e14;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #e2e8f0;
+  overflow: hidden;
+}
+
+.slice-canvas {
+  width: 850px;
+  height: 600px;
+  position: relative;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.09) 0%, rgba(11, 14, 20, 1) 75%), #0b0e14;
+  padding: 30px 36px 26px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-top: 1px solid rgba(0, 242, 254, 0.25);
+  border-bottom: 1px solid rgba(123, 44, 191, 0.25);
+}
+
+.slice-canvas::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+}
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.15);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #00f2fe;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.pill-badge.purple {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.35);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+}
+
+.slice-title {
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 40%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.slice-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.cards-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.cards-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.card-pillar {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 16px 16px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-pillar.cyan {
+  border-color: rgba(0, 242, 254, 0.35);
+  background: radial-gradient(circle at 100% 0%, rgba(0, 242, 254, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
+}
+
+.card-pillar.blue {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
+}
+
+.card-pillar.purple {
+  border-color: rgba(168, 85, 247, 0.35);
+  background: radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
+}
+
+.card-pillar.amber {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: radial-gradient(circle at 100% 0%, rgba(245, 158, 11, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag-badge {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.tag-cyan { background: rgba(0, 242, 254, 0.15); color: #00f2fe; border: 1px solid rgba(0, 242, 254, 0.3); }
+.tag-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+.tag-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+.tag-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+.tag-gray { background: rgba(255, 255, 255, 0.06); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.1); }
+
+.card-title {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.graphic-box {
+  height: 90px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px 0 4px 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+
+.check-icon {
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.check-icon.cyan { color: #00f2fe; }
+.check-icon.blue { color: #38bdf8; }
+.check-icon.purple { color: #c084fc; }
+.check-icon.amber { color: #fbbf24; }
+
+.bottom-wide-card {
+  background: rgba(10, 15, 26, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 12px;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.spec-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spec-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #00f2fe;
+}
+
+.spec-text-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #00f2fe;
+}
+
+.spec-text-desc {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.spec-sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.img-frame {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+</head>
+<body>
+  <div class="slice-canvas">
+    <div class="header-center">
+      <div class="pill-badge">📊 IN-GAME TELEMETRY</div>
+      <div class="slice-title">REAL-TIME BOSSBAR & ACTIONBAR HUD</div>
+      <div class="slice-subtitle">Direct in-game capture showcasing live metrics and the 8 hotbar tools</div>
+    </div>
+    
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="card-pillar cyan" style="padding: 12px 16px;">
+          <div class="card-top-row" style="margin-bottom: 8px;">
+            <span class="card-title" style="font-size:14px; color:#00f2fe;">📊 Live Dynamic BossBar HUD</span>
+            <span class="tag-badge tag-cyan">DYNAMIC PROGRESS (TPS / 20.0)</span>
+          </div>
+          <div class="img-frame" style="height: 52px; padding: 2px;">
+            <img src="file:///C:/Users/dr855/IdeaProjects/StaffCore/assets/screenshots/ingame_bossbar.png" style="width:100%; height:100%; object-fit: cover;" />
+          </div>
+        </div>
+
+        <div class="card-pillar purple" style="padding: 12px 16px;">
+          <div class="card-top-row" style="margin-bottom: 8px;">
+            <span class="card-title" style="font-size:14px; color:#c084fc;">🛠️ Hotbar Utility Suite & Actionbar HUD</span>
+            <span class="tag-badge tag-purple">8 MODULAR TOOLS</span>
+          </div>
+          <div class="img-frame" style="height: 180px;">
+            <img src="file:///C:/Users/dr855/IdeaProjects/StaffCore/assets/screenshots/ingame_hotbar_actionbar.png" style="width:100%; height:100%; object-fit: contain;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-wide-card" style="margin-top: 4px;">
+        <div class="spec-item">
+          <div class="spec-icon-box">📊</div>
+          <div>
+            <div class="spec-text-title">13+ PLACEHOLDERS</div>
+            <div class="spec-text-desc">TPS, Ping, Reports, Duty, Staff.</div>
+          </div>
+        </div>
+        <div class="spec-sep"></div>
+        <div class="spec-item">
+          <div class="spec-icon-box" style="color:#38bdf8; background:rgba(56,189,248,0.12); border-color:rgba(56,189,248,0.3);">🎨</div>
+          <div>
+            <div class="spec-text-title" style="color:#38bdf8;">RGB GRADIENTS</div>
+            <div class="spec-text-desc">Custom colors & styles in ui.yml.</div>
+          </div>
+        </div>
+        <div class="spec-sep"></div>
+        <div class="spec-item">
+          <div class="spec-icon-box" style="color:#c084fc; background:rgba(168,85,247,0.12); border-color:rgba(168,85,247,0.3);">🧹</div>
+          <div>
+            <div class="spec-text-title" style="color:#c084fc;">AUTO-CLEANUP</div>
+            <div class="spec-text-desc">Zero ghost BossBars upon quit.</div>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</body>
+</html>
