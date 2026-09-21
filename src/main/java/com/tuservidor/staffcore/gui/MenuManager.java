@@ -2,9 +2,7 @@ package com.tuservidor.staffcore.gui;
 
 import com.tuservidor.staffcore.StaffCore;
 import com.tuservidor.staffcore.data.NoteEntry;
-import com.tuservidor.staffcore.data.PunishmentEntry;
 import com.tuservidor.staffcore.reports.Report;
-import com.tuservidor.staffcore.util.DurationParser;
 import com.tuservidor.staffcore.util.ItemBuilder;
 import com.tuservidor.staffcore.util.Messages;
 import com.tuservidor.staffcore.util.ModerationGuard;
@@ -277,26 +275,12 @@ public final class MenuManager {
             uuid,
             tr(viewer, "menu-inspect-open-ender-lore")
         ));
-        inv.setItem(29, actionItem(
-            material("menu.style.icons.inspect-history", Material.BOOK),
+        inv.setItem(31, actionItem(
+            material("menu.style.icons.inspect-history", Material.WRITABLE_BOOK),
             tr(viewer, "menu-inspect-history-name"),
-            "INSPECT_HISTORY",
+            "INSPECT_NOTES",
             uuid,
             tr(viewer, "menu-inspect-history-lore")
-        ));
-        inv.setItem(31, actionItem(
-            material("menu.style.icons.inspect-warn", Material.LIME_DYE),
-            tr(viewer, "menu-inspect-warn-name"),
-            "INSPECT_WARN",
-            uuid,
-            tr(viewer, "menu-inspect-warn-lore")
-        ));
-        inv.setItem(33, actionItem(
-            material("menu.style.icons.inspect-mute", Material.RED_DYE),
-            tr(viewer, "menu-inspect-mute-name"),
-            "INSPECT_MUTE",
-            uuid,
-            tr(viewer, "menu-inspect-mute-lore")
         ));
         inv.setItem(49, actionItem(
             material("menu.style.icons.back", Material.ARROW),
@@ -314,31 +298,7 @@ public final class MenuManager {
         fill(inv, material("menu.style.fillers.history", Material.BROWN_STAINED_GLASS_PANE));
 
         int slot = 0;
-        for (PunishmentEntry entry : plugin.punishmentManager().history(target.getUniqueId(), 18)) {
-            if (slot >= 27) {
-                break;
-            }
-            String duration = entry.expiresAt() == null
-                ? tr(viewer, "menu-history-permanent")
-                : DurationParser.format(Duration.ofMillis(Math.max(0L, entry.expiresAt() - entry.createdAt())));
-            inv.setItem(slot++, new ItemBuilder(material("menu.style.icons.history-punishment", Material.PAPER))
-                .name(tr(viewer, "menu-history-punishment-name", Map.of(
-                    "type", tr(viewer, entry.type().translationKey()),
-                    "id", String.valueOf(entry.id())
-                )))
-                .lore(List.of(
-                    tr(viewer, "menu-history-punishment-staff", Map.of("staff", entry.staffName())),
-                    tr(viewer, "menu-history-punishment-reason", Map.of("reason", ModerationGuard.sanitizeReason(entry.reason()))),
-                    tr(viewer, "menu-history-punishment-duration", Map.of("duration", duration)),
-                    tr(viewer, "menu-history-punishment-active", Map.of(
-                        "active", entry.active() ? tr(viewer, "menu-state-yes") : tr(viewer, "menu-state-no")
-                    ))
-                ))
-                .build());
-        }
-
-        slot = 27;
-        for (NoteEntry note : plugin.noteManager().byTarget(target.getUniqueId(), 18)) {
+        for (NoteEntry note : plugin.noteManager().byTarget(target.getUniqueId(), 45)) {
             if (slot >= 45) {
                 break;
             }
@@ -610,67 +570,12 @@ public final class MenuManager {
                 }
                 viewer.openInventory(plugin.createEnderInspectionInventory(viewer, target));
             }
-            case "INSPECT_HISTORY" -> {
+            case "INSPECT_HISTORY", "INSPECT_NOTES" -> {
                 Player target = resolveTarget(data);
                 if (target == null) {
                     return;
                 }
                 openHistory(viewer, target);
-            }
-            case "INSPECT_WARN" -> {
-                if (!plugin.featureEnabled("punishments")) {
-                    plugin.messages().send(viewer, "module-disabled", Map.of("module", "punishments"));
-                    return;
-                }
-                if (!Permissions.has(viewer, "staffcore.punish.warn")) {
-                    plugin.messages().send(viewer, "no-permission");
-                    return;
-                }
-                Player target = resolveTarget(data);
-                if (target == null) {
-                    return;
-                }
-                String reason = ModerationGuard.sanitizeReason(plugin.getConfig().getString("menu.quick-actions.warn-reason", "Suspicious activity (quick warn)"));
-                if (!ModerationGuard.canTarget(plugin, viewer, target)) {
-                    plugin.messages().send(viewer, "target-protected");
-                    return;
-                }
-                if (!ModerationGuard.validReason(plugin, reason)) {
-                    plugin.messages().send(viewer, "reason-too-short");
-                    return;
-                }
-                plugin.punishmentManager().warn(viewer, target, target.getName(), reason);
-                plugin.messages().send(viewer, "punishment-warn-sent", Map.of("player", target.getName()));
-            }
-            case "INSPECT_MUTE" -> {
-                if (!plugin.featureEnabled("punishments")) {
-                    plugin.messages().send(viewer, "module-disabled", Map.of("module", "punishments"));
-                    return;
-                }
-                if (!Permissions.has(viewer, "staffcore.punish.mute")) {
-                    plugin.messages().send(viewer, "no-permission");
-                    return;
-                }
-                Player target = resolveTarget(data);
-                if (target == null) {
-                    return;
-                }
-                String reason = ModerationGuard.sanitizeReason(plugin.getConfig().getString("menu.quick-actions.mute-reason", "Please contact staff for review."));
-                String durationRaw = plugin.getConfig().getString("menu.quick-actions.mute-duration", "15m");
-                Duration duration = DurationParser.parse(durationRaw);
-                if (duration == null || duration.isZero()) {
-                    duration = Duration.ofMinutes(15);
-                }
-                if (!ModerationGuard.canTarget(plugin, viewer, target)) {
-                    plugin.messages().send(viewer, "target-protected");
-                    return;
-                }
-                if (!ModerationGuard.validReason(plugin, reason)) {
-                    plugin.messages().send(viewer, "reason-too-short");
-                    return;
-                }
-                plugin.punishmentManager().mute(viewer, target, target.getName(), reason, duration);
-                plugin.messages().send(viewer, "punishment-mute-sent", Map.of("player", target.getName(), "duration", DurationParser.format(duration)));
             }
             default -> {
             }

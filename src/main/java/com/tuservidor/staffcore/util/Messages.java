@@ -61,6 +61,8 @@ public final class Messages {
 
     private static final java.util.regex.Pattern HEX_PATTERN_AMP = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})");
     private static final java.util.regex.Pattern HEX_PATTERN_TAG = java.util.regex.Pattern.compile("<#([A-Fa-f0-9]{6})>");
+    private static final java.util.regex.Pattern HEX_PATTERN_BRACKET = java.util.regex.Pattern.compile("\\{&#?([A-Fa-f0-9]{6})\\}");
+    private static final java.util.regex.Pattern HEX_PATTERN_COLOR = java.util.regex.Pattern.compile("<color:#([A-Fa-f0-9]{6})>");
 
     public static String color(String text) {
         if (text == null || text.isEmpty()) {
@@ -78,6 +80,24 @@ public final class Messages {
         normalized = buffer.toString();
 
         matcher = HEX_PATTERN_TAG.matcher(normalized);
+        buffer = new StringBuffer();
+        while (matcher.find()) {
+            String hex = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hex).toString());
+        }
+        matcher.appendTail(buffer);
+        normalized = buffer.toString();
+
+        matcher = HEX_PATTERN_BRACKET.matcher(normalized);
+        buffer = new StringBuffer();
+        while (matcher.find()) {
+            String hex = matcher.group(1);
+            matcher.appendReplacement(buffer, net.md_5.bungee.api.ChatColor.of("#" + hex).toString());
+        }
+        matcher.appendTail(buffer);
+        normalized = buffer.toString();
+
+        matcher = HEX_PATTERN_COLOR.matcher(normalized);
         buffer = new StringBuffer();
         while (matcher.find()) {
             String hex = matcher.group(1);

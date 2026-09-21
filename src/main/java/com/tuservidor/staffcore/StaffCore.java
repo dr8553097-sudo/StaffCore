@@ -3,48 +3,46 @@ package com.tuservidor.staffcore;
 import com.tuservidor.staffcore.commands.FreezeCommand;
 import com.tuservidor.staffcore.commands.ChatMuteCommand;
 import com.tuservidor.staffcore.commands.HelpOpCommand;
-import com.tuservidor.staffcore.commands.HistoryCommand;
-import com.tuservidor.staffcore.commands.MuteCommand;
 import com.tuservidor.staffcore.commands.NotesCommand;
 import com.tuservidor.staffcore.commands.ReportCommand;
 import com.tuservidor.staffcore.commands.ReportsCommand;
-import com.tuservidor.staffcore.commands.StaffBanCommand;
-import com.tuservidor.staffcore.commands.StaffBanIpCommand;
 import com.tuservidor.staffcore.commands.StaffChatCommand;
 import com.tuservidor.staffcore.commands.StaffCommand;
-import com.tuservidor.staffcore.commands.StaffKickCommand;
 import com.tuservidor.staffcore.commands.StaffLangCommand;
 import com.tuservidor.staffcore.commands.StaffLogsCommand;
 import com.tuservidor.staffcore.commands.StaffPanelCommand;
 import com.tuservidor.staffcore.commands.StaffCoreTabCompleter;
-import com.tuservidor.staffcore.commands.TempBanCommand;
-import com.tuservidor.staffcore.commands.TempBanIpCommand;
-import com.tuservidor.staffcore.commands.UnbanCommand;
-import com.tuservidor.staffcore.commands.UnbanIpCommand;
-import com.tuservidor.staffcore.commands.UnmuteCommand;
 import com.tuservidor.staffcore.commands.VanishCommand;
-import com.tuservidor.staffcore.commands.WarnCommand;
 import com.tuservidor.staffcore.commands.XrayAlertsCommand;
 import com.tuservidor.staffcore.data.FirstJoinManager;
 import com.tuservidor.staffcore.data.NoteManager;
-import com.tuservidor.staffcore.data.PunishmentManager;
 import com.tuservidor.staffcore.data.StaffLogManager;
 import com.tuservidor.staffcore.gui.InventoryTagHolder;
 import com.tuservidor.staffcore.gui.MenuManager;
+import com.tuservidor.staffcore.commands.StaffDutyCommand;
+import com.tuservidor.staffcore.commands.StaffTopCommand;
+import com.tuservidor.staffcore.discord.DiscordWebhookService;
+import com.tuservidor.staffcore.hooks.LuckPermsHook;
 import com.tuservidor.staffcore.listeners.ChatModerationListener;
 import com.tuservidor.staffcore.listeners.CommandVisibilityListener;
 import com.tuservidor.staffcore.listeners.CombatProtectionListener;
+import com.tuservidor.staffcore.listeners.DetectionListener;
 import com.tuservidor.staffcore.listeners.FreezeListener;
 import com.tuservidor.staffcore.listeners.ListenerSupport;
 import com.tuservidor.staffcore.listeners.PlayerSessionListener;
 import com.tuservidor.staffcore.listeners.StaffModeListener;
 import com.tuservidor.staffcore.reports.ReportManager;
+import com.tuservidor.staffcore.staff.CpsTracker;
 import com.tuservidor.staffcore.staff.FreezeManager;
 import com.tuservidor.staffcore.staff.StaffChatManager;
+import com.tuservidor.staffcore.staff.StaffDutyManager;
 import com.tuservidor.staffcore.staff.StaffManager;
 import com.tuservidor.staffcore.staff.StaffHudManager;
 import com.tuservidor.staffcore.staff.VanishManager;
 import com.tuservidor.staffcore.staff.XrayAlertManager;
+import com.tuservidor.staffcore.staff.XrayHeuristicsManager;
+import com.tuservidor.staffcore.storage.DatabaseManager;
+import com.tuservidor.staffcore.storage.RedisManager;
 import com.tuservidor.staffcore.storage.StorageModeResolver;
 import com.tuservidor.staffcore.storage.StorageModeSelection;
 import com.tuservidor.staffcore.util.ItemBuilder;
@@ -87,12 +85,18 @@ public final class StaffCore extends JavaPlugin {
     private XrayAlertManager xrayAlertManager;
     private StaffLogManager staffLogManager;
     private NoteManager noteManager;
-    private PunishmentManager punishmentManager;
     private FirstJoinManager firstJoinManager;
     private MenuManager menuManager;
     private StaffHudManager staffHudManager;
     private UpdateChecker updateChecker;
     private TabCompleter tabCompleter;
+    private DatabaseManager databaseManager;
+    private RedisManager redisManager;
+    private DiscordWebhookService discordWebhookService;
+    private StaffDutyManager staffDutyManager;
+    private XrayHeuristicsManager xrayHeuristicsManager;
+    private CpsTracker cpsTracker;
+    private LuckPermsHook luckPermsHook;
     private File uiFile;
     private YamlConfiguration uiConfig;
     private volatile boolean chatMuted;
@@ -111,16 +115,22 @@ public final class StaffCore extends JavaPlugin {
         ItemBuilder.init(this);
         this.langManager = new LangManager(this);
         this.messages = new Messages(this, langManager);
+        this.databaseManager = new DatabaseManager(getDataFolder(), getConfig(), getLogger());
+        this.redisManager = new RedisManager(getConfig(), getLogger());
+        this.discordWebhookService = new DiscordWebhookService(getConfig(), getLogger());
         this.vanishManager = new VanishManager(this, messages);
         this.freezeManager = new FreezeManager(this, messages);
         this.staffChatManager = new StaffChatManager();
         this.staffLogManager = new StaffLogManager(this);
         this.noteManager = new NoteManager(this);
         this.firstJoinManager = new FirstJoinManager(this);
-        this.punishmentManager = new PunishmentManager(this, messages, staffLogManager);
         this.reportManager = new ReportManager(this, messages);
         this.xrayAlertManager = new XrayAlertManager(this, messages);
         this.staffManager = new StaffManager(this, messages, vanishManager);
+        this.staffDutyManager = new StaffDutyManager(this);
+        this.xrayHeuristicsManager = new XrayHeuristicsManager(this);
+        this.cpsTracker = new CpsTracker(this);
+        this.luckPermsHook = new LuckPermsHook(this);
         this.menuManager = new MenuManager(this);
         this.staffHudManager = new StaffHudManager(this, staffManager, vanishManager);
         this.updateChecker = new UpdateChecker(this, messages);
@@ -131,13 +141,18 @@ public final class StaffCore extends JavaPlugin {
         registerDomainListeners();
         Bukkit.getScheduler().runTask(this, () -> vanishManager.resyncAllOnlineVisibility());
 
-        messages.console("&8&m----------------------------------------");
-        messages.console("&bStaffCore &7| &fModern Moderation Suite");
-        messages.console("&7Version: &f" + getDescription().getVersion());
-        messages.console("&7Paper API: &f" + Bukkit.getBukkitVersion());
-        messages.console("&7Supported Version: " + (isSupportedServerVersion() ? "&aYes (Native 1.21.x / 26.x)" : "&eYes (Compatible)"));
-        messages.console("&aReady in " + (System.currentTimeMillis() - start) + "ms");
-        messages.console("&8&m----------------------------------------");
+        messages.console("&b================================================================");
+        messages.console("&3  ____  _             __  __  ____              ");
+        messages.console("&3 / ___|| |_ __ _ / _|/ _|/ ___|___  _ __ ___ ");
+        messages.console("&b \\___ \\| __/ _` | |_| |_| |   / _ \\| '__/ _ \\");
+        messages.console("&b  ___) | || (_| |  _|  _| |__| (_) | | |  __/");
+        messages.console("&f |____/ \\__\\__,_|_| |_|  \\____\\___/|_|  \\___|");
+        messages.console("&7");
+        messages.console("&b  🛡️ StaffCore &fv" + getDescription().getVersion() + " &8— &bModern Administration & Moderation Suite");
+        messages.console("&e  👑 Creador / Autor: &fDafealru");
+        messages.console("&a  🌐 Plataforma: &fNative Java 21 & Paper/Purpur 1.21.x - 26.x");
+        messages.console("&f  ✔ Ready in " + (System.currentTimeMillis() - start) + "ms | Sistema listo.");
+        messages.console("&b================================================================");
     }
 
     private boolean isSupportedServerVersion() {
@@ -155,9 +170,6 @@ public final class StaffCore extends JavaPlugin {
         }
         if (noteManager != null) {
             noteManager.save();
-        }
-        if (punishmentManager != null) {
-            punishmentManager.save();
         }
         if (staffLogManager != null) {
             staffLogManager.save();
@@ -180,6 +192,12 @@ public final class StaffCore extends JavaPlugin {
         if (updateChecker != null) {
             updateChecker.shutdown();
         }
+        if (databaseManager != null) {
+            databaseManager.close();
+        }
+        if (redisManager != null) {
+            redisManager.close();
+        }
         if (messages != null) {
             messages.console("&cStaffCore disabled safely.");
         } else {
@@ -198,7 +216,6 @@ public final class StaffCore extends JavaPlugin {
         langManager.reload();
         reportManager.reload();
         noteManager.reload();
-        punishmentManager.reload();
         staffLogManager.reload();
         firstJoinManager.reload();
         freezeManager.reload();
@@ -220,20 +237,11 @@ public final class StaffCore extends JavaPlugin {
         register("report", new ReportCommand(this));
         register("reports", new ReportsCommand(this));
         register("notes", new NotesCommand(this));
-        register("warn", new WarnCommand(this));
-        register("mute", new MuteCommand(this));
-        register("unmute", new UnmuteCommand(this));
-        register("sckick", new StaffKickCommand(this));
-        register("scban", new StaffBanCommand(this));
-        register("scbanip", new StaffBanIpCommand(this));
-        register("sctempban", new TempBanCommand(this));
-        register("sctempbanip", new TempBanIpCommand(this));
-        register("scunban", new UnbanCommand(this));
-        register("scunbanip", new UnbanIpCommand(this));
-        register("history", new HistoryCommand(this));
         register("stafflogs", new StaffLogsCommand(this));
         register("stafflang", new StaffLangCommand(this));
         register("xrayalerts", new XrayAlertsCommand(this));
+        register("staffduty", new StaffDutyCommand(this));
+        register("stafftop", new StaffTopCommand(this));
     }
 
     private void registerDomainListeners() {
@@ -244,6 +252,7 @@ public final class StaffCore extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ChatModerationListener(this, listenerSupport), this);
         Bukkit.getPluginManager().registerEvents(new StaffModeListener(this, listenerSupport), this);
         Bukkit.getPluginManager().registerEvents(new CombatProtectionListener(this, listenerSupport), this);
+        Bukkit.getPluginManager().registerEvents(new DetectionListener(this), this);
     }
 
     private void register(String name, CommandExecutor executor) {
@@ -296,10 +305,6 @@ public final class StaffCore extends JavaPlugin {
         return noteManager;
     }
 
-    public PunishmentManager punishmentManager() {
-        return punishmentManager;
-    }
-
     public FirstJoinManager firstJoinManager() {
         return firstJoinManager;
     }
@@ -314,6 +319,34 @@ public final class StaffCore extends JavaPlugin {
 
     public UpdateChecker updateChecker() {
         return updateChecker;
+    }
+
+    public DatabaseManager databaseManager() {
+        return databaseManager;
+    }
+
+    public RedisManager redisManager() {
+        return redisManager;
+    }
+
+    public DiscordWebhookService discordWebhookService() {
+        return discordWebhookService;
+    }
+
+    public StaffDutyManager staffDutyManager() {
+        return staffDutyManager;
+    }
+
+    public XrayHeuristicsManager xrayHeuristicsManager() {
+        return xrayHeuristicsManager;
+    }
+
+    public CpsTracker cpsTracker() {
+        return cpsTracker;
+    }
+
+    public LuckPermsHook luckPermsHook() {
+        return luckPermsHook;
     }
 
     public boolean isChatMuted() {
@@ -370,7 +403,6 @@ public final class StaffCore extends JavaPlugin {
         File notes = new File(data, "notes.yml");
         File firstJoins = new File(data, "first-joins.yml");
         File reports = new File(data, "reports.yml");
-        File punishments = new File(data, "punishments.yml");
         File logs = new File(data, "staff-logs.yml");
         File frozen = new File(data, "frozen.yml");
         String asyncSaveMode = getConfig().getBoolean("storage.async-save.enabled", true) ? "enabled" : "disabled";
@@ -386,7 +418,6 @@ public final class StaffCore extends JavaPlugin {
             "notes.yml: " + existsState(notes),
             "first-joins.yml: " + existsState(firstJoins),
             "reports.yml: " + existsState(reports),
-            "punishments.yml: " + existsState(punishments),
             "staff-logs.yml: " + existsState(logs),
             "frozen.yml: " + existsState(frozen),
             "server tps (1m/5m/15m): " + formatTps(),
@@ -412,10 +443,6 @@ public final class StaffCore extends JavaPlugin {
                 + ", reject-prompts=" + reportManager.pendingRejectFlows()
                 + ", queued-save=" + reportManager.saveQueued()
                 + ", async-write=" + reportManager.asyncWriteInProgress(),
-            "punishment state: total=" + punishmentManager.totalPunishments()
-                + ", active=" + punishmentManager.activePunishmentsCount()
-                + ", queued-save=" + punishmentManager.saveQueued()
-                + ", async-write=" + punishmentManager.asyncWriteInProgress(),
             "staff logs state: total=" + staffLogManager.totalLogs()
                 + ", queued-save=" + staffLogManager.saveQueued()
                 + ", async-write=" + staffLogManager.asyncWriteInProgress(),
@@ -473,7 +500,6 @@ public final class StaffCore extends JavaPlugin {
         copyIfExists(new File(dataFolder, "notes.yml"), new File(backupDir, "notes-" + stamp + ".yml"));
         copyIfExists(new File(dataFolder, "first-joins.yml"), new File(backupDir, "first-joins-" + stamp + ".yml"));
         copyIfExists(new File(dataFolder, "reports.yml"), new File(backupDir, "reports-" + stamp + ".yml"));
-        copyIfExists(new File(dataFolder, "punishments.yml"), new File(backupDir, "punishments-" + stamp + ".yml"));
         copyIfExists(new File(dataFolder, "staff-logs.yml"), new File(backupDir, "staff-logs-" + stamp + ".yml"));
         copyIfExists(new File(dataFolder, "frozen.yml"), new File(backupDir, "frozen-" + stamp + ".yml"));
     }

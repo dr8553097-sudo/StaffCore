@@ -1,3 +1,15 @@
+# ==============================================================================
+#   ____  _             __  __  ____              
+#  / ___|| |_ __ _ / _|/ _|/ ___|___  _ __ ___ 
+#  \___ \| __/ _` | |_| |_| |   / _ \| '__/ _ \
+#   ___) | || (_| |  _|  _| |__| (_) | | |  __/
+#  |____/ \__\__,_|_| |_|  \____\___/|_|  \___|
+#                                              
+#   🛡️ StaffCore v2.0.0 — Modern Administration & Moderation Suite
+#   👑 Author / Creator: Dafealru
+#   🌐 Platform: Native Java 21 & Paper/Purpur 1.21.x - 26.x
+# ==============================================================================
+
 messages:
   no-permission: '{prefix}&cNo tienes permiso.'
   players-only: '{prefix}&cSolo los jugadores pueden usar este comando.'
@@ -40,6 +52,8 @@ messages:
   staff-flyspeed-set: '{prefix}&aVelocidad de vuelo actualizada. Nivel: &f{level} &8| &7Valor: &f{value}'
   staff-enabled: '{prefix}&aModo staff activado &8| &7Herramientas cargadas.'
   staff-disabled: '{prefix}&cModo staff desactivado &8| &7Estado restaurado.'
+  staff-duty-start: '{prefix}&aAhora estás &lEN SERVICIO&a. Tu tiempo de moderación está siendo registrado.'
+  staff-duty-stop: '{prefix}&cHas salido de &lSERVICIO&c. Duración de sesión: &e{time}&c.'
   vanish-enabled: '{prefix}&aVanish activado &8| &7Ahora eres invisible.'
   vanish-disabled: '{prefix}&cVanish desactivado &8| &7Ahora eres visible.'
   freeze-usage: '{prefix}&cUso: /freeze <jugador> <razon> | /freeze <jugador> | /freeze claim <jugador>'

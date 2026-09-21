@@ -1,9 +1,14 @@
-# ==========================================================
-# StaffCore - Configuracion principal
-# Proyecto orientado a hispanohablantes.
-# Primera version educativa/profesional para moderacion.
-# Credito principal del plugin: Dafealru
-# ==========================================================
+# ==============================================================================
+#   ____  _             __  __  ____              
+#  / ___|| |_ __ _ / _|/ _|/ ___|___  _ __ ___ 
+#  \___ \| __/ _` | |_| |_| |   / _ \| '__/ _ \
+#   ___) | || (_| |  _|  _| |__| (_) | | |  __/
+#  |____/ \__\__,_|_| |_|  \____\___/|_|  \___|
+#                                              
+#   🛡️ StaffCore v2.0.0 — Modern Administration & Moderation Suite
+#   👑 Author / Creator: Dafealru
+#   🌐 Platform: Native Java 21 & Paper/Purpur 1.21.x - 26.x
+# ==============================================================================
 
 # Prefix used in most plugin messages ({prefix})
 prefix: '&8[&3&lSTAFF&b&lCORE&8] &7'
@@ -23,6 +28,11 @@ language:
     - es
     - fr
     - pt
+    - de
+    - it
+    - ru
+    - zh
+    - ja
 
 update-checker:
   # If enabled, StaffCore checks Spigot for newer plugin versions.
@@ -50,44 +60,53 @@ update-checker:
   console-log-up-to-date: false
   console-log-failures: true
 
-# Welcome text/title was moved to ui.yml -> welcome.*
-# (kept compatible: if ui.yml key is missing, plugin falls back to old config path)
-
-staff-mode:
-  # Enable vanish automatically when entering staff mode
-  auto-vanish: true
-  # Disable vanish automatically when leaving staff mode
-  disable-vanish-on-exit: true
-  # GameMode applied when entering staff mode (recommended: ADVENTURE or SURVIVAL)
-  # Avoid CREATIVE on production unless you explicitly trust all staff.
-  game-mode-on-enable: ADVENTURE
-  # Block PvP when a player is in staff mode (prevents abuse during moderation)
-  prevent-combat: true
-  # If true, players in staff mode cannot receive any damage (fall, fire, lava, drowning, etc.).
-  # OP attackers can still damage them for emergency control.
-  prevent-all-damage: true
-  # Prevent staff mode from breaking/placing blocks
-  prevent-world-modification: true
-  # Prevent block interaction (buttons, doors, chests, pressure plates) while in staff mode
-  prevent-world-interactions: true
-  # If true, staff in staff mode cannot pick up dropped items from the floor
-  prevent-item-pickup: true
-  # Cooldown for warning message when blocked by staff-mode protections
-  interaction-notice-cooldown-ms: 1200
-  # Default profile speeds used in staff mode when the player has no custom profile saved yet.
-  # Scale 0-10 (10 = maximum Bukkit speed 1.0)
-  default-walk-speed-level: 2.0
-  default-fly-speed-level: 1.0
-
 features:
-  # Master toggles for modules that may overlap with other plugins.
-  # Keep true by default; set false to delegate to another plugin.
-  punishments: true
+  # Master toggles for all modules. You can independently enable or disable any module.
   reports: true
   freeze: true
   vanish: true
   staff-chat: true
   xray-alerts: true
+  staff-duty: true
+  xray-heuristics: true
+  cps-tracker: true
+  discord-webhooks: true
+  redis: false
+
+staff-duty:
+  # Inactivity detection (minutes without moving in staff mode before marking as AFK)
+  afk-threshold-minutes: 3
+  # Automatically clock in when entering /staff mode
+  auto-duty-on-staffmode: true
+
+xray-heuristics:
+  # Anomaly threshold for diamond/rare ores to stone ratio (0.15 = 15%)
+  ratio-threshold: 0.15
+  # Minimum rare ores mined in the window before calculating ratio alerts
+  min-ores-to-alert: 5
+  # Rolling calculation window in minutes
+  window-minutes: 10
+
+cps-tracker:
+  # Alert threshold (clicks per second)
+  alert-threshold: 18
+  # Cooldown between alerts per player (seconds)
+  cooldown-seconds: 30
+
+discord:
+  enabled: false
+  server-name: "Survival"
+  webhooks:
+    reports: ""
+    duty: ""
+
+redis:
+  enabled: false
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  timeout-ms: 3000
+  channel-prefix: "staffcore:"
 
 security:
   # Hide moderation/staff commands (and staffcore:* namespaced variants) from regular players in tab-complete
@@ -122,7 +141,7 @@ storage:
     # Slightly increases IO cost on slow disks.
     force-file-sync: false
     # If true, keep a .bak copy before replacing target files.
-    keep-backup: true
+    keep-backup: false
     # On startup/reload, if target file is missing but .tmp exists,
     # StaffCore recovers the temp snapshot automatically.
     recover-temp-on-load: true
@@ -148,17 +167,18 @@ vanish:
   interaction-notice-cooldown-ms: 1200
 
 staff-hud:
-  # ActionBar HUD shown above hotbar for staff/vanish users
+  # Master toggle for HUD display
   enabled: true
-  # Update frequency in ticks (20 ticks = 1 second).
-  # Lower value = faster refresh of vanish status icon (✓/✗).
   update-interval-ticks: 8
-  # Show while player is in staff mode
   show-when-staff-mode: true
-  # Show while player is vanished (even if not in staff mode)
   show-when-vanished: true
-  # HUD text style moved to ui.yml -> staff-hud.*
-  # Placeholders: {tps} {ping} {fps} {vanish} {vanish_text} {vanish_icon}
+  actionbar:
+    enabled: true
+  bossbar:
+    enabled: true
+    color: BLUE # BLUE, CYAN, GREEN, PINK, PURPLE, RED, WHITE, YELLOW
+    style: SOLID # SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, SEGMENTED_20
+    dynamic-progress: true # Bar progress follows server TPS (20 TPS = 100%)
   # Note: ActionBar vertical position is client-side and cannot be moved by plugin.
 
 staff-chat:

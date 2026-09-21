@@ -5,12 +5,14 @@ import com.tuservidor.staffcore.reports.Report;
 import com.tuservidor.staffcore.util.ModerationGuard;
 import com.tuservidor.staffcore.util.Permissions;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.UUID;
 
 public final class ReportCommand implements CommandExecutor {
 
@@ -39,19 +41,34 @@ public final class ReportCommand implements CommandExecutor {
             return true;
         }
 
-        Player target = Bukkit.getPlayerExact(args[0]);
-        if (target == null) {
-            plugin.messages().send(reporter, "player-not-found", Map.of("player", args[0]));
-            return true;
-        }
-        if (target.equals(reporter)) {
-            plugin.messages().send(reporter, "cannot-target-self");
-            return true;
-        }
-        if (!plugin.getConfig().getBoolean("reports.allow-protected-targets", false)
-            && !ModerationGuard.canTarget(plugin, reporter, target)) {
-            plugin.messages().send(reporter, "target-protected");
-            return true;
+        String targetName = args[0];
+        Player onlineTarget = Bukkit.getPlayerExact(targetName);
+        UUID targetUuid;
+        
+        if (onlineTarget != null) {
+            targetName = onlineTarget.getName();
+            targetUuid = onlineTarget.getUniqueId();
+            if (onlineTarget.equals(reporter)) {
+                plugin.messages().send(reporter, "cannot-target-self");
+                return true;
+            }
+            if (!plugin.getConfig().getBoolean("reports.allow-protected-targets", false)
+                && !ModerationGuard.canTarget(plugin, reporter, onlineTarget)) {
+                plugin.messages().send(reporter, "target-protected");
+                return true;
+            }
+        } else {
+            OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetName);
+            if (offlineTarget.hasPlayedBefore() || offlineTarget.getName() != null) {
+                targetName = offlineTarget.getName() != null ? offlineTarget.getName() : targetName;
+                targetUuid = offlineTarget.getUniqueId();
+            } else {
+                targetUuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + targetName).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            }
+            if (reporter.getUniqueId().equals(targetUuid) || reporter.getName().equalsIgnoreCase(targetName)) {
+                plugin.messages().send(reporter, "cannot-target-self");
+                return true;
+            }
         }
 
         long cooldown = plugin.reportManager().remainingCooldownSeconds(reporter);
@@ -59,8 +76,8 @@ public final class ReportCommand implements CommandExecutor {
             plugin.messages().send(reporter, "report-cooldown", Map.of("seconds", String.valueOf(cooldown)));
             return true;
         }
-        if (plugin.reportManager().hasOpenReport(reporter, target)) {
-            plugin.messages().send(reporter, "report-duplicate", Map.of("player", target.getName()));
+        if (plugin.reportManager().hasOpenReport(reporter.getUniqueId(), targetUuid, targetName)) {
+            plugin.messages().send(reporter, "report-duplicate", Map.of("player", targetName));
             return true;
         }
 
@@ -70,8 +87,8 @@ public final class ReportCommand implements CommandExecutor {
             plugin.messages().send(reporter, "report-reason-too-long", Map.of("max", String.valueOf(maxReasonLength)));
             return true;
         }
-        Report report = plugin.reportManager().create(reporter, target, reason);
-        plugin.messages().send(reporter, "report-created", Map.of("id", String.valueOf(report.id()), "player", target.getName()));
+        Report report = plugin.reportManager().create(reporter, targetUuid, targetName, reason);
+        plugin.messages().send(reporter, "report-created", Map.of("id", String.valueOf(report.id()), "player", targetName));
         return true;
     }
 }

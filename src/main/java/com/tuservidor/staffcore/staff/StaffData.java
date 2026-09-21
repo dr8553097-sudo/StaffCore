@@ -1,11 +1,13 @@
 package com.tuservidor.staffcore.staff;
 
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class StaffData {
 
+    private final Location location;
     private final ItemStack[] contents;
     private final ItemStack[] armor;
     private final ItemStack[] extraContents;
@@ -26,6 +28,7 @@ public class StaffData {
     private final int slot;
 
     public StaffData(Player player) {
+        this.location = player.getLocation().clone();
         this.contents = player.getInventory().getContents().clone();
         this.armor = player.getInventory().getArmorContents().clone();
         this.extraContents = player.getInventory().getExtraContents().clone();
@@ -49,6 +52,9 @@ public class StaffData {
     }
 
     public void restore(Player player) {
+        if (location != null && location.getWorld() != null) {
+            player.teleport(location);
+        }
         player.getInventory().setContents(contents);
         player.getInventory().setArmorContents(armor);
         player.getInventory().setExtraContents(extraContents);
@@ -67,5 +73,9 @@ public class StaffData {
         player.setFlySpeed(flySpeed);
         player.setFlying(flying && allowFlight);
         player.getInventory().setHeldItemSlot(slot);
+    }
+
+    public Location getLocation() {
+        return location;
     }
 }

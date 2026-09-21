@@ -21,7 +21,7 @@ public abstract class AsyncYamlPersistence {
     private long batchDelayTicks = 100L;
     private boolean crashSafeEnabled = true;
     private boolean crashSafeForceFileSync = false;
-    private boolean crashSafeKeepBackup = true;
+    private boolean crashSafeKeepBackup = false;
     private boolean crashSafeRecoverTempOnLoad = true;
     private boolean saveQueued = false;
     private BukkitTask saveTask;
@@ -132,7 +132,7 @@ public abstract class AsyncYamlPersistence {
         batchDelayTicks = intervalSeconds * 20L;
         crashSafeEnabled = plugin.getConfig().getBoolean("storage.crash-safe.enabled", true);
         crashSafeForceFileSync = plugin.getConfig().getBoolean("storage.crash-safe.force-file-sync", false);
-        crashSafeKeepBackup = plugin.getConfig().getBoolean("storage.crash-safe.keep-backup", true);
+        crashSafeKeepBackup = plugin.getConfig().getBoolean("storage.crash-safe.keep-backup", false);
         crashSafeRecoverTempOnLoad = plugin.getConfig().getBoolean("storage.crash-safe.recover-temp-on-load", true);
     }
 

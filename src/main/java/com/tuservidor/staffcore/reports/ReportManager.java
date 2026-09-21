@@ -43,15 +43,15 @@ public final class ReportManager extends AsyncYamlPersistence {
         reload();
     }
 
-    public Report create(Player reporter, Player target, String reason) {
-        purgeExpiredReportCooldowns();
+    public Report create(Player reporter, UUID targetUuid, String targetName, String reason) {
+        String cleanReason = reason == null ? "" : reason.trim();
         Report report = new Report(
             nextId++,
             reporter.getUniqueId(),
             reporter.getName(),
-            target.getUniqueId(),
-            target.getName(),
-            reason,
+            targetUuid,
+            targetName,
+            cleanReason,
             Instant.now(),
             true,
             STATUS_OPEN,
@@ -60,47 +60,75 @@ public final class ReportManager extends AsyncYamlPersistence {
             ""
         );
         reports.add(report);
-        if (cooldownMillis() > 0L) {
-            reportCooldowns.put(reporter.getUniqueId(), System.currentTimeMillis());
-        } else {
-            reportCooldowns.remove(reporter.getUniqueId());
-        }
+        reportCooldowns.put(reporter.getUniqueId(), System.currentTimeMillis());
         queueSave();
+
+        plugin.staffLogManager().log(reporter.getName(), "REPORT", targetName, cleanReason);
+        messages.send(reporter, "report-created-reporter", Map.of(
+            "id", String.valueOf(report.id()),
+            "target", targetName,
+            "reason", cleanReason
+        ));
         notifyStaff(report);
-        plugin.staffLogManager().log(reporter.getName(), "REPORT_CREATE", target.getName(), reason);
+
+        if (plugin.discordWebhookService() != null) {
+            plugin.discordWebhookService().sendReportEmbed(reporter.getName(), targetName, cleanReason);
+        }
+        if (plugin.redisManager() != null && plugin.redisManager().isEnabled()) {
+            plugin.redisManager().publish("reports", reporter.getName() + " reported " + targetName + ": " + cleanReason);
+        }
+
         return report;
     }
 
+    public Report create(Player reporter, Player target, String reason) {
+        return create(reporter, target.getUniqueId(), target.getName(), reason);
+    }
+
     public boolean hasOpenReport(Player reporter, Player target) {
-        return reports.stream().anyMatch(report -> report.isOpen()
-            && report.reporter().equals(reporter.getUniqueId())
-            && report.target().equals(target.getUniqueId()));
+        return hasOpenReport(reporter.getUniqueId(), target.getUniqueId(), target.getName());
+    }
+
+    public boolean hasOpenReport(UUID reporter, UUID target) {
+        return hasOpenReport(reporter, target, null);
+    }
+
+    public boolean hasOpenReport(UUID reporter, UUID targetUuid, String targetName) {
+        return reports.stream()
+            .filter(Report::isOpen)
+            .anyMatch(r -> r.reporter().equals(reporter) && (
+                (targetUuid != null && r.target().equals(targetUuid))
+                || (targetName != null && r.targetName().equalsIgnoreCase(targetName))
+            ));
     }
 
     public long remainingCooldownSeconds(Player reporter) {
-        purgeExpiredReportCooldowns();
-        long cooldownMillis = cooldownMillis();
-        if (cooldownMillis <= 0L) {
-            reportCooldowns.remove(reporter.getUniqueId());
-            return 0L;
-        }
+        return remainingCooldownSeconds(reporter.getUniqueId());
+    }
 
-        Long lastReport = reportCooldowns.get(reporter.getUniqueId());
-        if (lastReport == null) {
+    public long remainingCooldownSeconds(UUID reporter) {
+        Long last = reportCooldowns.get(reporter);
+        if (last == null) {
             return 0L;
         }
-
-        long elapsed = System.currentTimeMillis() - lastReport;
-        if (elapsed >= cooldownMillis) {
-            reportCooldowns.remove(reporter.getUniqueId());
+        long diff = System.currentTimeMillis() - last;
+        long cd = cooldownMillis();
+        if (diff >= cd) {
+            reportCooldowns.remove(reporter);
             return 0L;
         }
-        return Math.max(1L, (cooldownMillis - elapsed + 999L) / 1000L);
+        return (cd - diff + 999L) / 1000L;
     }
 
     public List<Report> openReports() {
         return reports.stream()
             .filter(Report::isOpen)
+            .sorted(Comparator.comparingInt(Report::id).reversed())
+            .toList();
+    }
+
+    public List<Report> reports() {
+        return reports.stream()
             .sorted(Comparator.comparingInt(Report::id).reversed())
             .toList();
     }

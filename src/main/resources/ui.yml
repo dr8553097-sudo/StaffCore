@@ -1,25 +1,46 @@
-# ==========================================================
-# StaffCore - UI / Text templates
-# ----------------------------------------------------------
-# This file stores visual and textual presentation keys.
-# Gameplay behavior, limits, cooldowns and toggles stay in config.yml.
-# ==========================================================
+# ==============================================================================
+#   ____  _             __  __  ____              
+#  / ___|| |_ __ _ / _|/ _|/ ___|___  _ __ ___ 
+#  \___ \| __/ _` | |_| |_| |   / _ \| '__/ _ \
+#   ___) | || (_| |  _|  _| |__| (_) | | |  __/
+#  |____/ \__\__,_|_| |_|  \____\___/|_|  \___|
+#                                              
+#   🛡️ StaffCore v2.0.0 — Modern Administration & Moderation Suite
+#   👑 Author / Creator: Dafealru
+#   🌐 Platform: Native Java 21 & Paper/Purpur 1.21.x - 26.x
+# ==============================================================================
 
 welcome:
   # First join onboarding text/sound/title
-  first-join-title: '&bBienvenido'
-  first-join-subtitle: '&7Disfruta tu experiencia en el servidor'
+  first-join-title: '&bWelcome'
+  first-join-subtitle: '&7Enjoy your experience on the server'
   first-join-lines:
-    - '&aBienvenido, {player}.'
-    - '&7Esperamos que disfrutes y juegues limpio.'
+    - '&aWelcome, {player}.'
+    - '&7We hope you enjoy and play fair.'
 
 staff-hud:
-  # Placeholders: {tps} {ping} {fps} {vanish} {vanish_text} {vanish_icon}
+  # Available Placeholders:
+  #  {tps}             - Server TPS (e.g. 20.00)
+  #  {ping}            - Staff Ping in milliseconds (e.g. 24)
+  #  {reports}         - Number of active open reports
+  #  {staff_online}    - Number of online staff members
+  #  {online}          - Total online players on the server
+  #  {max}             - Maximum server slots
+  #  {world}           - Current world name
+  #  {cps}             - Current left clicks per second
+  #  {duty_time}       - Duration of active /staffduty session (e.g. 15m 20s)
+  #  {duty_status}     - Status indicator (ON DUTY / OFF DUTY)
+  #  {vanish}          - Vanish state text (ON / OFF)
+  #  {vanish_icon}     - Vanish state icon (✔ / ✖)
+  #  {player}          - Name of the staff player
   format: '&8[&bTPS&8] &f{tps}  &8[&aPING&8] &f{ping}ms  &8[&dVANISH&8] {vanish_icon}'
-  vanish-on-text: '&aACTIVO'
+  vanish-on-text: '&aON'
   vanish-off-text: '&cOFF'
-  vanish-on-icon: '&a✓'
-  vanish-off-icon: '&c✗'
+  vanish-on-icon: '&a&l✔'
+  vanish-off-icon: '&c&l✖'
+  bossbar:
+    # BossBar title format (supports RGB colors, gradient tags & legacy codes)
+    format: '&b&lSTAFF &8| &7TPS: &a{tps} &8| &7Ping: &e{ping}ms &8| &7Reports: &c{reports} &8| &7Staff: &b{staff_online} &8| &7Vanish: {vanish_icon}'
 
 staff-chat:
   # Format for @message staff chat
@@ -31,42 +52,42 @@ helpop:
   # Placeholders: {player} {message} {message_raw} {message_wrapped} {message_compact} {time} {server}
   template-lines:
     - '&8&m========================================'
-    - '&c&l[HELPOP] NUEVA SOLICITUD'
-    - '&7Jugador: &f{player} &8| &7Hora: &f{time}'
-    - '&7Servidor: &f{server}'
-    - '&7Mensaje:'
+    - '&c&l[HELPOP] NEW REQUEST'
+    - '&7Player: &f{player} &8| &7Time: &f{time}'
+    - '&7Server: &f{server}'
+    - '&7Message:'
     - '&f{message_compact}'
     - '&8&m========================================'
   # Title text for online staff alert
   alert-title: '&c&l[HELPOP]'
-  alert-subtitle: '&f{player} &7necesita ayuda del staff'
+  alert-subtitle: '&f{player} &7needs staff assistance'
 
 staff-tools:
   # Names/lore of staff mode toolbar items
   teleporter:
     name: '&bTeleporter'
-    lore: '&7Click derecho a un jugador para teletransportarte.'
+    lore: '&7Right click a player to teleport.'
   freeze:
     name: '&bFreeze'
-    lore: '&7Click derecho a un jugador para congelarlo.'
+    lore: '&7Right click a player to freeze.'
   inspector:
     name: '&bInspector'
-    lore: '&7Click derecho para revisar su inventario.'
+    lore: '&7Right click to inspect inventory.'
   spectator:
-    name: '&bModo Espectador'
-    lore: '&7Click derecho para alternar modo espectador.'
+    name: '&bSpectator Mode'
+    lore: '&7Right click to toggle spectator.'
   panel:
-    name: '&bPanel Staff'
-    lore: '&7Abre el panel central de moderacion.'
+    name: '&bStaff Panel'
+    lore: '&7Open main moderation panel.'
   night-vision:
-    name: '&bVision Nocturna'
-    lore: '&7Click derecho para alternar vision nocturna.'
+    name: '&bNight Vision'
+    lore: '&7Right click to toggle night vision.'
   vanish:
     lore: '&7Toggle your visibility.'
   vanish-on:
-    name: '&aVanish: ACTIVO'
+    name: '&aVanish: ON'
   vanish-off:
     name: '&cVanish: OFF'
   exit:
-    name: '&cSalir de Staff'
-    lore: '&7Regresa a tu estado normal de forma segura.'
+    name: '&cExit Staff'
+    lore: '&7Safely return to normal state.'

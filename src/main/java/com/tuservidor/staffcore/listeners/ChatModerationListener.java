@@ -1,9 +1,6 @@
 package com.tuservidor.staffcore.listeners;
 
 import com.tuservidor.staffcore.StaffCore;
-import com.tuservidor.staffcore.data.PunishmentEntry;
-import com.tuservidor.staffcore.util.DurationParser;
-import com.tuservidor.staffcore.util.ModerationGuard;
 import com.tuservidor.staffcore.util.Permissions;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -15,10 +12,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public final class ChatModerationListener implements Listener {
 
@@ -75,22 +70,6 @@ public final class ChatModerationListener implements Listener {
                 }
             }
             plugin.staffLogManager().log(player.getName(), "STAFF_CHAT", "staff-channel", content);
-            return;
-        }
-
-        if (!plugin.featureEnabled("punishments")) {
-            return;
-        }
-        Optional<PunishmentEntry> mute = plugin.punishmentManager().activeMute(player.getUniqueId());
-        if (mute.isPresent()) {
-            event.setCancelled(true);
-            String duration = mute.get().expiresAt() == null
-                ? "permanent"
-                : DurationParser.format(Duration.ofMillis(Math.max(0L, mute.get().expiresAt() - System.currentTimeMillis())));
-            plugin.messages().send(player, "mute-chat-blocked", Map.of(
-                "duration", duration,
-                "reason", ModerationGuard.sanitizeReason(mute.get().reason())
-            ));
         }
     }
 

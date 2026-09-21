@@ -35,20 +35,11 @@ public final class StaffCoreTabCompleter implements TabCompleter {
             case "report" -> completeReport(args, sender);
             case "reports" -> completeReports(args);
             case "notes" -> completeNotes(args, sender);
-            case "warn" -> completePlayers(args, sender);
-            case "mute" -> completeMute(args, sender);
-            case "unmute" -> completePlayers(args, sender);
-            case "sckick" -> completePlayers(args, sender);
-            case "scban" -> completePlayers(args, sender);
-            case "scbanip" -> completePlayers(args, sender);
-            case "sctempban" -> completeTempBan(args, sender);
-            case "sctempbanip" -> completeTempBan(args, sender);
-            case "scunban" -> completePlayers(args, sender);
-            case "scunbanip" -> completePlayers(args, sender);
-            case "history" -> completePlayers(args, sender);
             case "stafflogs" -> completeStaffLogs(args, sender);
             case "stafflang" -> completeLanguages(args);
             case "xrayalerts" -> completeXrayAlerts(args, sender);
+            case "staffduty" -> List.of();
+            case "stafftop" -> List.of();
             default -> List.of();
         };
     }
@@ -112,26 +103,6 @@ public final class StaffCoreTabCompleter implements TabCompleter {
         }
         if (args.length == 2) {
             return filter(args[1], List.of("list", "add", "remove"));
-        }
-        return List.of();
-    }
-
-    private List<String> completeMute(String[] args, CommandSender sender) {
-        if (args.length == 1) {
-            return filterPlayers(args[0], sender);
-        }
-        if (args.length == 2) {
-            return filter(args[1], List.of("5m", "15m", "30m", "1h", "3h", "12h", "1d", "3d", "7d", "perm"));
-        }
-        return List.of();
-    }
-
-    private List<String> completeTempBan(String[] args, CommandSender sender) {
-        if (args.length == 1) {
-            return filterPlayers(args[0], sender);
-        }
-        if (args.length == 2) {
-            return filter(args[1], List.of("1h", "6h", "12h", "1d", "3d", "7d", "14d", "30d"));
         }
         return List.of();
     }

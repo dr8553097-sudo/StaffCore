@@ -1,11 +1,23 @@
 name: StaffCore
-version: 1.3.0
+version: 2.0.0
 main: com.tuservidor.staffcore.StaffCore
 api-version: '1.21'
 author: Dafealru
 description: StaffCore | Modern Moderation Suite
+softdepend:
+  - LuckPerms
 
 commands:
+  staffduty:
+    description: Toggle on-duty staff status and moderation timer.
+    usage: /staffduty
+    aliases: [duty, sduty]
+    permission: staffcore.staff
+  stafftop:
+    description: View the top active staff members leaderboard.
+    usage: /stafftop
+    aliases: [topstaff, stop]
+    permission: staffcore.staff
   staff:
     description: Toggle staff mode or reload StaffCore.
     usage: /staff [on|off|menu|speed|flyspeed|reload|health|cleanfreeze|help]
@@ -50,50 +62,6 @@ commands:
     description: Manage internal staff notes.
     usage: /notes <player> <list|add|remove> [text|id]
     permission: staffcore.notes
-  warn:
-    description: Warn a player.
-    usage: /warn <player> <reason>
-    permission: staffcore.punish.warn
-  mute:
-    description: Mute a player.
-    usage: /mute <player> <duration|perm> <reason>
-    permission: staffcore.punish.mute
-  unmute:
-    description: Unmute a player.
-    usage: /unmute <player>
-    permission: staffcore.punish.unmute
-  sckick:
-    description: Kick a player.
-    usage: /sckick <player> <reason>
-    permission: staffcore.punish.kick
-  scban:
-    description: Permanently ban a player.
-    usage: /scban <player> <reason>
-    permission: staffcore.punish.ban
-  scbanip:
-    description: Permanently IP ban a player or IP address.
-    usage: /scbanip <player|ip> <reason>
-    permission: staffcore.punish.banip
-  sctempban:
-    description: Temporarily ban a player.
-    usage: /sctempban <player> <duration> <reason>
-    permission: staffcore.punish.tempban
-  sctempbanip:
-    description: Temporarily IP ban a player or IP address.
-    usage: /sctempbanip <player|ip> <duration> <reason>
-    permission: staffcore.punish.tempbanip
-  scunban:
-    description: Unban a player.
-    usage: /scunban <player>
-    permission: staffcore.punish.unban
-  scunbanip:
-    description: Unban an IP address or player IP.
-    usage: /scunbanip <player|ip>
-    permission: staffcore.punish.unbanip
-  history:
-    description: View full moderation history of a player.
-    usage: /history <player>
-    permission: staffcore.history
   stafflogs:
     description: View moderation logs.
     usage: /stafflogs [player|clear]
@@ -127,19 +95,8 @@ permissions:
       staffcore.report: true
       staffcore.use: true
       staffcore.notes: true
-      staffcore.history: true
       staffcore.logs: true
       staffcore.logs.clear: true
-      staffcore.punish.warn: true
-      staffcore.punish.mute: true
-      staffcore.punish.unmute: true
-      staffcore.punish.kick: true
-      staffcore.punish.ban: true
-      staffcore.punish.banip: true
-      staffcore.punish.tempban: true
-      staffcore.punish.tempbanip: true
-      staffcore.punish.unban: true
-      staffcore.punish.unbanip: true
       staffcore.lang: true
       staffcore.override: true
       staffcore.stafftarget.override: true
@@ -177,31 +134,9 @@ permissions:
     default: op
   staffcore.notes:
     default: op
-  staffcore.history:
-    default: op
   staffcore.logs:
     default: op
   staffcore.logs.clear:
-    default: op
-  staffcore.punish.warn:
-    default: op
-  staffcore.punish.mute:
-    default: op
-  staffcore.punish.unmute:
-    default: op
-  staffcore.punish.kick:
-    default: op
-  staffcore.punish.ban:
-    default: op
-  staffcore.punish.banip:
-    default: op
-  staffcore.punish.tempban:
-    default: op
-  staffcore.punish.tempbanip:
-    default: op
-  staffcore.punish.unban:
-    default: op
-  staffcore.punish.unbanip:
     default: op
   staffcore.lang:
     default: op
@@ -219,5 +154,6 @@ permissions:
     default: op
   staffcore.update:
     default: op
+
 
 

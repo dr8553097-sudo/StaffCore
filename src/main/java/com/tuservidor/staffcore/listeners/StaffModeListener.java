@@ -4,7 +4,9 @@ import com.tuservidor.staffcore.StaffCore;
 import com.tuservidor.staffcore.gui.InventoryTagHolder;
 import com.tuservidor.staffcore.util.ModerationGuard;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +21,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -68,19 +71,34 @@ public final class StaffModeListener implements Listener {
         }
 
         if (tool.equals("TELEPORTER")
-            && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+            && (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
             if (!support.canRunToolAction(player.getUniqueId() + ":TELEPORTER")) {
                 return;
             }
             event.setCancelled(true);
             Player target = support.teleportTarget(player);
-            if (target == null) {
-                plugin.messages().send(player, "teleporter-no-target");
+            if (target != null) {
+                player.teleport(target.getLocation());
+                plugin.messages().send(player, "teleported", Map.of("player", target.getName()));
+                plugin.staffLogManager().log(player.getName(), "TELEPORT", target.getName(), "Teleported via teleporter tool");
                 return;
             }
-            player.teleport(target.getLocation());
-            plugin.messages().send(player, "teleported", Map.of("player", target.getName()));
-            plugin.staffLogManager().log(player.getName(), "TELEPORT", target.getName(), "Teleported via teleporter tool");
+            int maxDistance = Math.max(10, plugin.getConfig().getInt("staff-tools.teleporter.max-distance", 120));
+            org.bukkit.block.Block targetBlock = player.getTargetBlockExact(maxDistance, org.bukkit.FluidCollisionMode.NEVER);
+            if (targetBlock != null && targetBlock.getType() != Material.AIR) {
+                Location loc = targetBlock.getLocation().add(0.5, 1.0, 0.5);
+                loc.setYaw(player.getLocation().getYaw());
+                loc.setPitch(player.getLocation().getPitch());
+                player.teleport(loc);
+                player.playSound(loc, Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 1.2f);
+                return;
+            }
+            org.bukkit.util.Vector dir = player.getLocation().getDirection().normalize().multiply(Math.min(maxDistance, 25));
+            Location forwardLoc = player.getLocation().add(dir);
+            forwardLoc.setYaw(player.getLocation().getYaw());
+            forwardLoc.setPitch(player.getLocation().getPitch());
+            player.teleport(forwardLoc);
+            player.playSound(forwardLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 0.8f, 1.2f);
             return;
         }
 
@@ -97,15 +115,7 @@ public final class StaffModeListener implements Listener {
                 return;
             }
             event.setCancelled(true);
-            if (player.getGameMode() == GameMode.SPECTATOR) {
-                player.setGameMode(plugin.staffManager().staffModeGameMode());
-                player.setAllowFlight(true);
-                player.setFlying(true);
-                plugin.messages().send(player, "staff-spectator-disabled");
-            } else {
-                player.setGameMode(GameMode.SPECTATOR);
-                plugin.messages().send(player, "staff-spectator-enabled");
-            }
+            toggleSpectatorMode(player);
             return;
         }
         if (tool.equals("NIGHT_VISION")) {
@@ -213,8 +223,15 @@ public final class StaffModeListener implements Listener {
         if (!plugin.staffManager().isStaff(player)) {
             return;
         }
-        if (support.toolName(event.getMainHandItem()) != null || support.toolName(event.getOffHandItem()) != null) {
+        String mainTool = support.toolName(event.getMainHandItem());
+        String offTool = support.toolName(event.getOffHandItem());
+        if (mainTool != null || offTool != null) {
             event.setCancelled(true);
+            if ("SPECTATOR".equals(mainTool) || "SPECTATOR".equals(offTool)) {
+                if (player.getGameMode() == GameMode.SPECTATOR) {
+                    toggleSpectatorMode(player);
+                }
+            }
         }
     }
 
@@ -240,11 +257,64 @@ public final class StaffModeListener implements Listener {
             return;
         }
 
-        if (plugin.staffManager().isStaff(player) && event.getCurrentItem() != null && event.getCurrentItem().getType() != Material.AIR) {
-            String tool = support.toolName(event.getCurrentItem());
+        if (plugin.staffManager().isStaff(player)) {
+            ItemStack clickedItem = event.getCurrentItem();
+            if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+                clickedItem = event.getCursor();
+            }
+            String tool = support.toolName(clickedItem);
             if (tool != null) {
                 event.setCancelled(true);
+                handleToolAction(player, tool);
             }
+        }
+    }
+
+    private void handleToolAction(Player player, String tool) {
+        if (!support.canRunToolAction(player.getUniqueId() + ":" + tool)) {
+            return;
+        }
+        switch (tool) {
+            case "TELEPORTER" -> {
+                player.closeInventory();
+                plugin.menuManager().openPlayerList(player);
+            }
+            case "SPECTATOR" -> {
+                toggleSpectatorMode(player);
+                player.closeInventory();
+            }
+            case "VANISH" -> plugin.vanishManager().toggle(player);
+            case "EXIT" -> {
+                player.closeInventory();
+                plugin.staffManager().disable(player);
+            }
+            case "NIGHT_VISION" -> {
+                if (player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
+                    player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                    plugin.messages().send(player, "staff-nightvision-disabled");
+                } else {
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, PotionEffect.INFINITE_DURATION, 0, false, false, true));
+                    plugin.messages().send(player, "staff-nightvision-enabled");
+                }
+            }
+            case "PANEL" -> {
+                player.closeInventory();
+                plugin.menuManager().openMain(player);
+            }
+            default -> {
+            }
+        }
+    }
+
+    private void toggleSpectatorMode(Player player) {
+        if (player.getGameMode() == GameMode.SPECTATOR) {
+            player.setGameMode(plugin.staffManager().staffModeGameMode());
+            player.setAllowFlight(true);
+            player.setFlying(true);
+            plugin.messages().send(player, "staff-spectator-disabled");
+        } else {
+            player.setGameMode(GameMode.SPECTATOR);
+            plugin.messages().send(player, "staff-spectator-enabled");
         }
     }
 

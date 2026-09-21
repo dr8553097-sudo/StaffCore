@@ -1,0 +1,128 @@
+# 🛡️ StaffCore v2.0.0 — Official SpigotMC & BuiltByBit Presentation Kit
+
+---
+
+## 📋 BBCode Supremo para SpigotMC (Copiar y Pegar Directo)
+
+```bbcode
+[CENTER]
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/staffcore_header_transparent_1024x238.png[/IMG]
+
+[SIZE=6][FONT=Montserrat][B][COLOR=#00C0FF]⚡ NEXT-GEN ENTERPRISE MODERATION & STAFF SUITE ⚡[/COLOR][/B][/FONT][/SIZE]
+[SIZE=3][COLOR=#8B949E]Native Java 21 • Paper / Purpur 1.20 - 1.21.x / 26.x • 0% NMS • Multi-Threaded Folia Ready • Zero-Bloat Core[/COLOR][/SIZE]
+
+[URL='https://youtu.be/0pvHOOajb1I'][COLOR=#FF0000][B]▶ WATCH OFFICIAL SHOWCASE VIDEO ON YOUTUBE[/B][/COLOR][/URL]
+[MEDIA=youtube]0pvHOOajb1I[/MEDIA]
+
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/spigot_recommended/Spigot_Slice1_Pillars.png[/IMG]
+
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/spigot_recommended/Spigot_Showcase_InGame_HUDs.png[/IMG]
+
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/spigot_recommended/Spigot_Slice2_StaffMode.png[/IMG]
+
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/spigot_recommended/Spigot_Showcase_GUIs.png[/IMG]
+
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/spigot_recommended/Spigot_Slice3_Detection.png[/IMG]
+
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/spigot_recommended/Spigot_Slice4_Persistence.png[/IMG]
+
+[IMG]https://raw.githubusercontent.com/dr8553097-sudo/StaffCore/main/assets/spigot_recommended/Spigot_Slice5_Duty_Specs.png[/IMG]
+
+[SIZE=5][B][COLOR=#00F2FE]⚡ CORE COMMANDS & PERMISSIONS MATRIX[/COLOR][/B][/SIZE]
+[/CENTER]
+
+[TABLE]
+[TR]
+[TH][COLOR=#00F2FE]Command[/COLOR][/TH]
+[TH][COLOR=#00F2FE]Description[/COLOR][/TH]
+[TH][COLOR=#00F2FE]Permission[/COLOR][/TH]
+[/TR]
+[TR]
+[TD][B]/staff[/B][/TD]
+[TD]Toggle full Staff Mode (automated inventory backup, armor restore & start location return).[/TD]
+[TD][ICODE]staffcore.staff[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/staff menu[/B][/TD]
+[TD]Open the master chest GUI moderation hub with quick actions.[/TD]
+[TD][ICODE]staffcore.staff[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/staff speed <0-10>[/B][/TD]
+[TD]Dynamically set staff walking velocity.[/TD]
+[TD][ICODE]staffcore.staff[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/staff flyspeed <0-10>[/B][/TD]
+[TD]Dynamically set staff flying velocity.[/TD]
+[TD][ICODE]staffcore.staff[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/vanish [player][/B][/TD]
+[TD]Silent stealth invisibility with zero particle leaks or audio cues.[/TD]
+[TD][ICODE]staffcore.vanish[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/freeze <player> [reason][/B][/TD]
+[TD]Freeze suspect with chat lock, anti-disconnect re-freeze & bypass prevention.[/TD]
+[TD][ICODE]staffcore.freeze[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/report <player> <reason>[/B][/TD]
+[TD]Submit ticket for [B]ONLINE or OFFLINE[/B] players with automated UUID lookup.[/TD]
+[TD][ICODE]None (Everyone)[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/reports[/B][/TD]
+[TD]Open the interactive Ticket Management GUI (teleport, claim, resolve).[/TD]
+[TD][ICODE]staffcore.reports[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/staffduty[/B][/TD]
+[TD]Clock-in / clock-out active moderation duty tracker with auto-AFK pauses.[/TD]
+[TD][ICODE]staffcore.staff[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/stafftop[/B][/TD]
+[TD]View weekly staff leaderboard ranking sorted by verified duty hours.[/TD]
+[TD][ICODE]staffcore.staff[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/staffchat <msg>[/B][/TD]
+[TD]Encrypted private staff communications channel.[/TD]
+[TD][ICODE]staffcore.chat[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/chatmute[/B][/TD]
+[TD]Lock global server public chat during spam attacks or emergencies.[/TD]
+[TD][ICODE]staffcore.chatmute[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/helpop <msg>[/B][/TD]
+[TD]Priority player emergency assistance request sent directly to online staff.[/TD]
+[TD][ICODE]staffcore.helpop[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/stafflang <code>[/B][/TD]
+[TD]Hot-swap personal staff language between 9 native languages.[/TD]
+[TD][ICODE]staffcore.lang[/ICODE][/TD]
+[/TR]
+[TR]
+[TD][B]/staff reload[/B][/TD]
+[TD]Hot-reload all YAML configurations, UI templates and languages.[/TD]
+[TD][ICODE]staffcore.admin[/ICODE][/TD]
+[/TR]
+[/TABLE]
+
+[CENTER]
+[SIZE=5][B][COLOR=#38EF7D]🌐 9 NATIVE LANGUAGES INCLUDED[/COLOR][/B][/SIZE]
+[SIZE=3]🇪🇸 Spanish • 🇬🇧 English • 🇩🇪 German • 🇮🇹 Italian • 🇷🇺 Russian • 🇨🇳 Chinese • 🇯🇵 Japanese • 🇫🇷 French • 🇧🇷 Portuguese[/SIZE]
+
+[SIZE=3][COLOR=#8B949E]Fully compatible with Kyori Adventure MiniMessage, HEX gradients, RGB tags and legacy formatting.[/COLOR][/SIZE]
+
+---
+
+[SIZE=4][B][COLOR=#00C0FF]⭐ SUPPORT & COMMUNITY[/COLOR][/B][/SIZE]
+[SIZE=3]Developed with passion by [B]Dafealru[/B]. If you love StaffCore, don't forget to leave a [B]5-Star Review[/B]! ⭐⭐⭐⭐⭐[/SIZE]
+[/CENTER]
+```

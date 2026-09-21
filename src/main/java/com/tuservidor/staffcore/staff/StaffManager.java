@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -24,7 +23,6 @@ import java.util.Map;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public final class StaffManager {
 
@@ -35,7 +33,6 @@ public final class StaffManager {
     private final Map<UUID, StaffData> savedData = new HashMap<>();
     private final Map<UUID, SpeedProfile> speedProfiles = new HashMap<>();
     private final Map<String, SpeedProfile> speedProfilesByName = new HashMap<>();
-    private final Map<UUID, BukkitTask> auraTasks = new ConcurrentHashMap<>();
     private final File speedFile;
 
     public StaffManager(StaffCore plugin, Messages messages, VanishManager vanishManager) {
@@ -64,6 +61,11 @@ public final class StaffManager {
         player.setGameMode(staffModeGameMode());
         player.setAllowFlight(true);
         player.setFlying(true);
+        player.setInvulnerable(true);
+        player.setFoodLevel(20);
+        player.setSaturation(20.0f);
+        player.setHealth(player.getMaxHealth());
+        player.setFireTicks(0);
         if (plugin.getConfig().getBoolean("staff-mode.prevent-item-pickup", true)) {
             player.setCanPickupItems(false);
         }
@@ -73,6 +75,10 @@ public final class StaffManager {
 
         if (plugin.getConfig().getBoolean("staff-mode.auto-vanish", true)) {
             vanishManager.vanish(player);
+        }
+
+        if (plugin.staffDutyManager() != null && plugin.staffDutyManager().isAutoDutyOnStaffMode()) {
+            plugin.staffDutyManager().startDuty(player);
         }
 
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1.25f);
@@ -87,16 +93,33 @@ public final class StaffManager {
             return;
         }
         stopAura(uuid);
+        player.setInvulnerable(false);
         rememberCurrentProfile(player);
 
         StaffData data = savedData.remove(uuid);
         if (data != null) {
             data.restore(player);
+        } else {
+            GameMode defaultMode = Bukkit.getDefaultGameMode();
+            player.setGameMode(defaultMode != null && defaultMode != GameMode.ADVENTURE && defaultMode != GameMode.SPECTATOR ? defaultMode : GameMode.SURVIVAL);
+            player.setAllowFlight(false);
+            player.setFlying(false);
+            player.setCanPickupItems(true);
+        }
+
+        if (player.getGameMode() == GameMode.ADVENTURE || player.getGameMode() == GameMode.SPECTATOR) {
+            GameMode fallback = Bukkit.getDefaultGameMode();
+            player.setGameMode(fallback != null && fallback != GameMode.ADVENTURE && fallback != GameMode.SPECTATOR ? fallback : GameMode.SURVIVAL);
         }
 
         if (plugin.getConfig().getBoolean("staff-mode.disable-vanish-on-exit", true)) {
             vanishManager.unvanish(player);
         }
+
+        if (plugin.staffDutyManager() != null && plugin.staffDutyManager().isAutoDutyOnStaffMode()) {
+            plugin.staffDutyManager().stopDuty(player);
+        }
+
         player.setGlowing(false);
 
         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1f, 0.75f);
@@ -113,50 +136,14 @@ public final class StaffManager {
                 disable(player);
             }
         }
-        for (BukkitTask task : auraTasks.values()) {
-            task.cancel();
-        }
-        auraTasks.clear();
         saveProfiles();
     }
 
     private void startAura(Player player) {
-        stopAura(player.getUniqueId());
         player.setGlowing(true);
-        final double[] step = {0.0};
-        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (!player.isOnline() || !isStaff(player)) {
-                stopAura(player.getUniqueId());
-                return;
-            }
-            if (!player.isGlowing()) {
-                player.setGlowing(true);
-            }
-            Location loc = player.getLocation();
-            double angle1 = step[0];
-            double angle2 = step[0] + Math.PI;
-            double radius = 0.75;
-            double y = 0.2 + ((Math.sin(step[0]) + 1.0) * 0.75); // 0.2 to 1.7m
-
-            Location p1 = loc.clone().add(radius * Math.cos(angle1), y, radius * Math.sin(angle1));
-            Location p2 = loc.clone().add(radius * Math.cos(angle2), 1.9 - y + 0.2, radius * Math.sin(angle2));
-
-            player.getWorld().spawnParticle(Particle.END_ROD, p1, 1, 0, 0, 0, 0);
-            player.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, p2, 1, 0, 0, 0, 0);
-
-            step[0] += Math.PI / 10;
-            if (step[0] > Math.PI * 4) {
-                step[0] = 0.0;
-            }
-        }, 0L, 2L);
-        auraTasks.put(player.getUniqueId(), task);
     }
 
     private void stopAura(UUID uuid) {
-        BukkitTask task = auraTasks.remove(uuid);
-        if (task != null) {
-            task.cancel();
-        }
         Player player = plugin.getServer().getPlayer(uuid);
         if (player != null && player.isOnline()) {
             player.setGlowing(false);

@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
 
 public final class CombatProtectionListener implements Listener {
 
@@ -19,6 +20,15 @@ public final class CombatProtectionListener implements Listener {
     public CombatProtectionListener(StaffCore plugin, ListenerSupport support) {
         this.plugin = plugin;
         this.support = support;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        if (event.getEntity() instanceof Player player && plugin.staffManager().isStaff(player)) {
+            event.setCancelled(true);
+            player.setFoodLevel(20);
+            player.setSaturation(20.0f);
+        }
     }
 
     @EventHandler
@@ -35,8 +45,7 @@ public final class CombatProtectionListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        if (plugin.staffManager().isStaff(player)
-            && plugin.getConfig().getBoolean("staff-mode.prevent-all-damage", true)) {
+        if (plugin.staffManager().isStaff(player)) {
             event.setCancelled(true);
         }
     }
@@ -54,21 +63,20 @@ public final class CombatProtectionListener implements Listener {
             return;
         }
 
+        if (event.getEntity() instanceof Player targetPlayer && plugin.staffManager().isStaff(targetPlayer)) {
+            event.setCancelled(true);
+            Player attacker = support.damagerAsPlayer(event.getDamager());
+            if (attacker != null && !plugin.staffManager().isStaff(attacker)) {
+                plugin.messages().send(attacker, "staff-combat-blocked");
+            }
+            return;
+        }
+
         if (plugin.getConfig().getBoolean("staff-mode.prevent-combat", true)) {
             Player attacker = support.damagerAsPlayer(event.getDamager());
             if (attacker != null && plugin.staffManager().isStaff(attacker)) {
                 event.setCancelled(true);
                 plugin.messages().send(attacker, "staff-combat-blocked");
-                return;
-            }
-            if (event.getEntity() instanceof Player targetPlayer && plugin.staffManager().isStaff(targetPlayer)) {
-                if (support.isStaffDamageBypassedByOp(event)) {
-                    return;
-                }
-                event.setCancelled(true);
-                if (attacker != null && !plugin.staffManager().isStaff(attacker)) {
-                    plugin.messages().send(attacker, "staff-combat-blocked");
-                }
                 return;
             }
         }
@@ -103,15 +111,8 @@ public final class CombatProtectionListener implements Listener {
             event.setCancelled(true);
             return;
         }
-        if (!plugin.staffManager().isStaff(target)) {
-            return;
+        if (plugin.staffManager().isStaff(target)) {
+            event.setCancelled(true);
         }
-        if (!plugin.getConfig().getBoolean("staff-mode.prevent-all-damage", true)) {
-            return;
-        }
-        if (support.isStaffDamageBypassedByOp(event)) {
-            return;
-        }
-        event.setCancelled(true);
     }
 }

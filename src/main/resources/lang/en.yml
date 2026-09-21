@@ -1,3 +1,15 @@
+# ==============================================================================
+#   ____  _             __  __  ____              
+#  / ___|| |_ __ _ / _|/ _|/ ___|___  _ __ ___ 
+#  \___ \| __/ _` | |_| |_| |   / _ \| '__/ _ \
+#   ___) | || (_| |  _|  _| |__| (_) | | |  __/
+#  |____/ \__\__,_|_| |_|  \____\___/|_|  \___|
+#                                              
+#   🛡️ StaffCore v2.0.0 — Modern Administration & Moderation Suite
+#   👑 Author / Creator: Dafealru
+#   🌐 Platform: Native Java 21 & Paper/Purpur 1.21.x - 26.x
+# ==============================================================================
+
 messages:
   no-permission: '&cYou do not have permission.'
   module-disabled: '&eThis module is disabled: &f{module}&e.'
@@ -40,6 +52,8 @@ messages:
   staff-flyspeed-set: '{prefix}&aFly speed updated. Level: &f{level} &8| &7Raw: &f{value}'
   staff-enabled: '{prefix}&aStaff mode enabled.'
   staff-disabled: '{prefix}&cStaff mode disabled.'
+  staff-duty-start: '{prefix}&aYou are now &lON DUTY&a. Your moderation time is being logged.'
+  staff-duty-stop: '{prefix}&cYou are now &lOFF DUTY&c. Session duration: &e{time}&c.'
   vanish-enabled: '{prefix}&aVanish enabled.'
   vanish-disabled: '{prefix}&cVanish disabled.'
   freeze-usage: '{prefix}&cUsage: /freeze <player> <reason> | /freeze <player> | /freeze claim <player>'

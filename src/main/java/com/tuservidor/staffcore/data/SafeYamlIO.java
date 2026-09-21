@@ -76,6 +76,12 @@ public final class SafeYamlIO {
             if (forceFileSync) {
                 forceDirectorySync(backupPath.getParent());
             }
+        } else {
+            Path backupPath = targetPath.resolveSibling(target.getName() + ".bak");
+            try {
+                Files.deleteIfExists(backupPath);
+            } catch (IOException ignored) {
+            }
         }
 
         moveTempIntoTarget(tempPath, targetPath, forceFileSync);

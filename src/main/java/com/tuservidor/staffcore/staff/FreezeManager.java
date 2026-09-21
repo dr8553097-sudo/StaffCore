@@ -392,7 +392,7 @@ public final class FreezeManager {
         }
         boolean crashSafeEnabled = plugin.getConfig().getBoolean("storage.crash-safe.enabled", true);
         boolean forceSync = plugin.getConfig().getBoolean("storage.crash-safe.force-file-sync", false);
-        boolean keepBackup = plugin.getConfig().getBoolean("storage.crash-safe.keep-backup", true);
+        boolean keepBackup = plugin.getConfig().getBoolean("storage.crash-safe.keep-backup", false);
         try {
             SafeYamlIO.writeSnapshot(plugin, file, config, crashSafeEnabled, forceSync, keepBackup);
         } catch (IOException exception) {
