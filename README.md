@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/staffcore_header_transparent_1024x238.png" alt="StaffCore Banner" width="800"/>
+<img src="assets/v2/staffcore_header_transparent.png" alt="StaffCore Banner" width="800"/>
 
 # 🛡️ StaffCore v2.0.0
 
@@ -20,31 +20,31 @@
 
 ---
 
-<img src="assets/spigot_recommended/Spigot_Slice1_Pillars.png" alt="Core Pillars" width="800"/>
+<img src="assets/v2/Spigot_Slice1_Pillars.png" alt="Core Pillars" width="800"/>
 
 <br/>
 
-<img src="assets/spigot_recommended/Spigot_Showcase_InGame_HUDs.png" alt="Live In-Game HUDs" width="800"/>
+<img src="assets/v2/Spigot_Showcase_InGame_HUDs.png" alt="Live In-Game HUDs" width="800"/>
 
 <br/>
 
-<img src="assets/spigot_recommended/Spigot_Slice2_StaffMode.png" alt="Staff Mode Tools" width="800"/>
+<img src="assets/v2/Spigot_Showcase_GUIs.png" alt="In-Game GUIs" width="800"/>
 
 <br/>
 
-<img src="assets/spigot_recommended/Spigot_Showcase_GUIs.png" alt="In-Game GUIs" width="800"/>
+<img src="assets/v2/Spigot_Slice2_StaffMode.png" alt="Staff Mode Tools" width="800"/>
 
 <br/>
 
-<img src="assets/spigot_recommended/Spigot_Slice3_Detection.png" alt="Detection & Spectate" width="800"/>
+<img src="assets/v2/Spigot_Slice3_Detection.png" alt="Detection & Spectate" width="800"/>
 
 <br/>
 
-<img src="assets/spigot_recommended/Spigot_Slice4_Persistence.png" alt="Persistence SQL Redis" width="800"/>
+<img src="assets/v2/Spigot_Slice4_Persistence.png" alt="Persistence SQL Redis" width="800"/>
 
 <br/>
 
-<img src="assets/spigot_recommended/Spigot_Slice5_Duty_Specs.png" alt="Staff Duty & Specs" width="800"/>
+<img src="assets/v2/Spigot_Slice5_Duty_Specs.png" alt="Staff Duty & Specs" width="800"/>
 
 ---
 
